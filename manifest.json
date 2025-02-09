@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "opal-bulk-marking",
+    "version": "0.0",
+
+    "description": "Adds buttons in Opal that allow bulk downloading of submissions and bulk upload of corrections and marks.",
+
+    "icons": {
+        "48": "icons/48.png",
+        "96": "icons/96.png"
+  },
+
+  "content_scripts": [
+    {
+        "matches": ["https://bildungsportal.sachsen.de/*"],
+        "js": ["./element_ids.js", "./utils.js", "./bulk_download.js", "./bulk_upload.js", "./dom_editing.js", "./main.js"],
+        "css": ["./styles.css"]
+    }]
+}

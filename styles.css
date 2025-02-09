@@ -1,0 +1,46 @@
+.opal-bulk-header {}
+
+.opal-bulk-empty-span {
+	width: 5px;
+	display: inline-block;
+}
+
+.opal-bulk-dropdown {  }
+
+.opal-bulk-dropdown-container {  }
+
+.opal-bulk-button {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #04AA6D;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+}
+
+.opal-bulk-button:hover {background-color: #3e8e41}
+
+.opal-bulk-button:active {
+    background-color: #3e8e41;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
+}
+
+.opal-bulk-disabled-button {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #000;
+    background-color: #666;
+    border: none;
+    border-radius: 15px;
+}

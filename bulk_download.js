@@ -1,0 +1,154 @@
+// This function gets links to the submission pages of each of the students and downloads the submissions one by one.
+// While downloading the download submission range button is disabled and its text replaced by a processing message.
+function downloadSubmissionsRange() {
+	// We temporarily disable the download submissions button and show that the downloads are being processed.
+	onDownloadStart();
+
+	// Getting first, last student and naming convention and then obtaining all information relative to the requested list of students.
+	// We will then iterate over this resulting list.
+	let start_student = getSelectedStudent(getStartDropDownId(), ["A", "Zzzz"]);
+	let end_student = getSelectedStudent(getEndDropDownId(), ["Zzzz", "A"]);
+	let file_naming_code = getFileNamingCode();
+
+	let students_interval = getStudentsInterval(start_student, end_student);
+	
+	// The function below recursively makes promises and waits until they are completed before proceeding to the next.
+	function recursiveDownload(outer_resolve) {
+		if (students_interval.length === 0) {
+			// When this point is reached all files have been downloaded and we can resolve the promise.
+			onDownloadEnd();
+			return outer_resolve(0);
+		} else {
+			let student_data = students_interval.pop();
+
+			let student_surname = student_data[0];
+			let student_name = student_data[1];
+			let student_id = student_data[2];
+			let student_url = student_data[3];
+			let download_file_name = getDownloadFileName(student_id, student_surname, student_name, file_naming_code);
+
+			return downloadStudentSubmission(student_url, download_file_name).then(
+				() => {
+					return new Promise(
+							(inner_resolve) => {
+								return outer_resolve(recursiveDownload(inner_resolve));
+							}
+						)
+					}
+				)
+		}
+	}
+
+	return new Promise((resolve) => recursiveDownload(resolve));
+}
+
+// The function below makes a promise that is resolved when a student submission file is downloaded.
+function downloadStudentSubmission(student_url, file_name) {
+
+	function download(download_resolve) {
+		// Once the stundent page is loaded we can start the download.
+		loadPage(student_url).then((student_page) => {
+			sendDownloadRequest(student_page, download_resolve);
+		})
+	}
+
+	// find the "a" to the pdf to download and retrieve its url.
+	function sendDownloadRequest(stundet_page, download_resolve) {
+		// The submission can be found following a link in the third column row one of the table body of the only table of class "b_briefcase_filetable".
+		let table = stundet_page.getElementsByClassName("b_briefcase_filetable")[0];
+		let tbody = table.tBodies[0];
+		let row = tbody.firstChild;
+		let cell = row.children[getPDFDownloadColumn()];
+		let link = cell.firstChild;
+
+		let request = new XMLHttpRequest();
+		request.responseType = 'blob';
+		request.open("GET", link.href);
+		request.addEventListener('load', function() {
+			save(request.response, file_name); // this function is in the utils file and saves the pdf under the specified file name.
+			download_resolve(0);
+		});
+		request.send();
+	}
+
+
+	return new Promise(download);
+}
+
+function getFileNamingCode() {
+	let dropdown = document.getElementById(getDownloadFileNameDropdownId());
+	return dropdown.selectedIndex;
+}
+
+function getSelectedStudent(dropdown_id, default_value) {
+	let dropdown = document.getElementById(dropdown_id);
+	if (dropdown.selectedIndex == 0) {
+		return default_value;
+	}
+	return dropdown.options[dropdown.selectedIndex].value.split(",");
+}
+
+function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
+	start[0] = start[0].toLowerCase();
+	start[1] = start[1].toLowerCase();
+	end[0] = end[0].toLowerCase();
+	end[1] = end[1].toLowerCase();
+
+	let table = document.getElementById(getTablePrefix() + getMainFormID());
+
+	let tableBody = table.getElementsByTagName("tbody")[0];
+
+	let students_interval = [];
+
+	for (let row of tableBody.getElementsByTagName("tr")) {
+		let allEntries = row.getElementsByTagName("td");
+		let link = allEntries[getSurnameColumn()].getElementsByTagName("a")[1];
+		let surname = link.innerHTML;
+		let url = link.href;
+		let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
+		let full_name = surname.toLowerCase() + " " + name.toLowerCase();
+		
+		// For some reason that Opal's creator did not mean for simple humans to understand
+		// the students are ordered first in alphabetical order by surame and then in REVERSE
+		// alphabetical order by name.
+		if (start[0] <= surname.toLowerCase() && start[1] >= name.toLowerCase() && surname.toLowerCase() <= end[0] && name.toLowerCase() >= end[1]) {
+			let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
+			if (nSubmissions > 0) {
+				let identifier = allEntries[getIDColumn()].innerHTML;
+				let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
+				students_interval.push([surname, name, identifier, url]);
+			}
+		}
+	}
+	return students_interval;
+}
+
+function getDownloadFileName(student_id, surname, name, naming_code) {
+	if (naming_code === 0) {
+		return student_id+".pdf";
+	} else if (naming_code === 1) {
+		return surname.toLowerCase()+"_"+name.toLowerCase()+".pdf";
+	} else {
+		throw new Error("Unrecognized file naming code " + naming_code);
+	}
+}
+
+
+// This function makes all operations needed when file download starts.
+function onDownloadStart() {
+	let processing_text = "Downloading";
+
+	let button = getStartDownloadButton();
+	button.setAttribute("class", "opal-bulk-disabled-button");
+	button.removeEventListener("click", downloadSubmissionsRange)
+	button.setAttribute("value", processing_text);
+}
+
+// This function makes all operations needed when file download ends.
+function onDownloadEnd() {
+	alert("Download completed");
+	let button = getStartDownloadButton();
+	button.setAttribute("value", getDownloadButtonValue());
+	button.setAttribute("class", "opal-bulk-button");
+	button.addEventListener("click", downloadSubmissionsRange);
+}
