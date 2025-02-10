@@ -89,10 +89,10 @@ function getSelectedStudent(dropdown_id, default_value) {
 }
 
 function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
-	start[0] = start[0].toLowerCase();
-	start[1] = start[1].toLowerCase();
-	end[0] = end[0].toLowerCase();
-	end[1] = end[1].toLowerCase();
+	start[0] = sanitize_name(start[0]);
+	start[1] = sanitize_name(start[1]);
+	end[0] = sanitize_name(end[0]);
+	end[1] = sanitize_name(end[1]);
 
 	let table = document.getElementById(getTablePrefix() + getMainFormID());
 
@@ -104,19 +104,20 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 		let allEntries = row.getElementsByTagName("td");
 		let link = allEntries[getSurnameColumn()].getElementsByTagName("a")[1];
 		let surname = link.innerHTML;
+		let sane_surname = sanitize_name(surname);
 		let url = link.href;
 		let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-		let full_name = surname.toLowerCase() + " " + name.toLowerCase();
+		let sane_name = sanitize_name(name);
 		
-		// For some reason that Opal's creator did not mean for simple humans to understand
-		// the students are ordered first in alphabetical order by surame and then in REVERSE
-		// alphabetical order by name.
-		if (start[0] <= surname.toLowerCase() && start[1] >= name.toLowerCase() && surname.toLowerCase() <= end[0] && name.toLowerCase() >= end[1]) {
-			let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
-			if (nSubmissions > 0) {
-				let identifier = allEntries[getIDColumn()].innerHTML;
-				let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-				students_interval.push([surname, name, identifier, url]);
+		// The students are ordered first in alphabetical order by surame and then in alphabetical order by name.
+		if (start[0] < sane_surname || (start[0] == sane_surname && start[1] <= sane_name)) {
+			if (sane_surname < end[0] || (sane_surname == end[0] && sane_name <= end[1])) {
+				let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
+				if (nSubmissions > 0) {
+					let identifier = allEntries[getIDColumn()].innerHTML;
+					let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
+					students_interval.push([surname, name, identifier, url]);
+				}
 			}
 		}
 	}
@@ -151,4 +152,39 @@ function onDownloadEnd() {
 	button.setAttribute("value", getDownloadButtonValue());
 	button.setAttribute("class", "opal-bulk-button");
 	button.addEventListener("click", downloadSubmissionsRange);
+}
+
+
+function sanitize_name(str) {
+	let out_str = str.toLowerCase();
+
+	out_str = out_str.replaceAll("ß", "ss");
+	out_str = out_str.replaceAll("ñ", "n");
+	
+	out_str = out_str.replaceAll("á", "a");
+	out_str = out_str.replaceAll("à", "a");
+	out_str = out_str.replaceAll("ä", "a");
+	out_str = out_str.replaceAll("â", "a");
+
+	out_str = out_str.replaceAll("é", "e");
+	out_str = out_str.replaceAll("è", "e");
+	out_str = out_str.replaceAll("ë", "e");
+	out_str = out_str.replaceAll("ê", "e");
+
+	out_str = out_str.replaceAll("í", "i");
+	out_str = out_str.replaceAll("ì", "i");
+	out_str = out_str.replaceAll("ï", "i");
+	out_str = out_str.replaceAll("î", "i");
+	
+	out_str = out_str.replaceAll("ó", "o");
+	out_str = out_str.replaceAll("ò", "o");
+	out_str = out_str.replaceAll("ö", "o");
+	out_str = out_str.replaceAll("ô", "o");
+	
+	out_str = out_str.replaceAll("ú", "u");
+	out_str = out_str.replaceAll("ù", "u");
+	out_str = out_str.replaceAll("ü", "u");
+	out_str = out_str.replaceAll("û", "u");
+
+	return out_str;
 }
