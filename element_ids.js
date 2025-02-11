@@ -95,6 +95,14 @@ function getNSubmissionsHeader() {
 	return "Number of files";
 }
 
+function getUploadingFilesSessionStorageName() {
+	return "opal-bulk-marking-uploading-files";
+}
+
+function getRestartFromFileUploadingSessionStorageName() {
+	return "opal-bulk-marking-restart-from-upload";
+}
+
 
 function getMainFormID() {
 	let allForms = document.getElementsByTagName("form");
