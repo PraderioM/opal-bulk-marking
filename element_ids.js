@@ -63,24 +63,36 @@ function getSurnameColumn() {
 	return 0;
 }
 
-function getSurnameHeader() {
+function getSurnameHeaderEnglish() {
 	return "Last name";
+}
+
+function getSurnameHeaderGerman() {
+	return "Nachname";
 }
 
 function getNameColumn() {
 	return 1;
 }
 
-function getNameHeader() {
+function getNameHeaderEnglish() {
 	return "First name";
+}
+
+function getNameHeaderGerman() {
+	return "Vorname";
 }
 
 function getIDColumn() {
 	return 2;
 }
 
-function getIDHeader() {
+function getIDHeaderEnglish() {
 	return "Institution identifier";
+}
+
+function getIDHeaderGerman() {
+	return "Matrikelnummer";
 }
 
 function getNSubmissionsColumn() {
@@ -91,8 +103,12 @@ function getPDFDownloadColumn() {
 	return 2;
 }
 
-function getNSubmissionsHeader() {
+function getNSubmissionsHeaderEnglish() {
 	return "Number of files";
+}
+
+function getNSubmissionsHeaderGerman() {
+	return "Anz. Dateien";
 }
 
 function getUploadingFilesSessionStorageName() {

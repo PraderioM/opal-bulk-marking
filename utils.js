@@ -62,6 +62,17 @@ function showAllStudents() {
 	return new Promise((resolve) => showAll(resolve))
 }
 
+// This function checks if the first string starts with one of the strings in a list.
+function startsWithSubstring(main_string, string_list) {
+	for (let s of string_list) {
+		if (main_string.substring(0, s.length) == s){
+			return true;
+		}
+	}
+	return false;
+}
+
+
 // this function checks if we are currently located in the page where we can see submission for a given exercise.
 function isTablePage() {
 	if (getMainFormID() === null) {
@@ -82,22 +93,22 @@ function isTablePage() {
 	}
 
 	surnameHeader = allHeaders[getSurnameColumn()].getElementsByTagName("a");
-	if (surnameHeader.length === 0 || surnameHeader[0].innerHTML.substring(0, getSurnameHeader().length) !== getSurnameHeader()) {
+	if (surnameHeader.length === 0 || (!startsWithSubstring(surnameHeader[0].innerHTML, [getSurnameHeaderEnglish(), getSurnameHeaderGerman()]))) {
 		return false;
 	}
 
 	nameHeader = allHeaders[getNameColumn()].getElementsByTagName("a");
-	if (nameHeader.length < 2 || nameHeader[1].innerHTML.substring(0, getNameHeader().length) !== getNameHeader()) {
+	if (nameHeader.length < 2 || !startsWithSubstring(nameHeader[1].innerHTML, [getNameHeaderEnglish(), getNameHeaderGerman()])) {
 		return false;
 	}
 
 	IDHeader = allHeaders[getIDColumn()].getElementsByTagName("a");
-	if (IDHeader.length < 2 || IDHeader[1].innerHTML.substring(0, getIDHeader().length) !== getIDHeader()) {
+	if (IDHeader.length < 2 || !startsWithSubstring(IDHeader[1].innerHTML, [getIDHeaderEnglish(), getIDHeaderGerman()])) {
 		return false;
 	}
 
 	nSubmissionsHeader = allHeaders[getNSubmissionsColumn()].getElementsByTagName("a");
-	if (nSubmissionsHeader.length < 2 || nSubmissionsHeader[1].innerHTML.substring(0, getNSubmissionsHeader().length) !== getNSubmissionsHeader()) {
+	if (nSubmissionsHeader.length < 2 || !startsWithSubstring(nSubmissionsHeader[1].innerHTML, [getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()])) {
 		return false;
 	}
 

@@ -72,7 +72,7 @@ function uploadMatchingSubmissions() {
 				// When returning to the main page the page is reloaded so we need to state that this was intentional.
 				sessionStorage.setItem(getRestartFromFileUploadingSessionStorageName(), true);
 				document.getElementsByClassName("b_link_back")[0].click();
-				setTimeout(() => {return outer_resolve(0);}, 1500);  // TODO this will probably never run. and for not it is fixed with the if above. find a different way of doing so
+				setTimeout(() => {return outer_resolve(0);}, 30000);  // TODO this will probably never run. and for not it is fixed with the if above. find a different way of doing so
 				return;
 			}
 		} else {
