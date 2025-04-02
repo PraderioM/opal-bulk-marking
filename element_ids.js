@@ -18,14 +18,6 @@ function getUploadSelectedButtonId() {
 	return "opal-bulk-upload-selected-button";
 }
 
-function getUploadSelectedButtonValue() {
-	return "Upload marking";
-}
-
-function getUploadSelectedButtonDiabledValue() {
-	return "Please select marked submissions";
-}
-
 function getBackButtonId() {
 	return "opal-bulk-back-button";
 }
@@ -46,10 +38,6 @@ function getDownloadFileNameDropdownId() {
 	return "opal-bulk-file-name-dropdown";
 }
 
-function getDownloadButtonValue() {
-	return "Download submissions";
-}
-
 
 function getMainFormPrefix() {
 	return "tb_ms_";
@@ -57,10 +45,6 @@ function getMainFormPrefix() {
 
 function getTablePrefix() {
 	return "b_table";
-}
-
-function getSurnameColumn() {
-	return 0;
 }
 
 function getSurnameHeaderEnglish() {
@@ -71,10 +55,6 @@ function getSurnameHeaderGerman() {
 	return "Nachname";
 }
 
-function getNameColumn() {
-	return 1;
-}
-
 function getNameHeaderEnglish() {
 	return "First name";
 }
@@ -83,20 +63,12 @@ function getNameHeaderGerman() {
 	return "Vorname";
 }
 
-function getIDColumn() {
-	return 2;
-}
-
 function getIDHeaderEnglish() {
 	return "Institution identifier";
 }
 
 function getIDHeaderGerman() {
 	return "Matrikelnummer";
-}
-
-function getNSubmissionsColumn() {
-	return 5;
 }
 
 function getPDFDownloadColumn() {
@@ -117,6 +89,18 @@ function getUploadingFilesSessionStorageName() {
 
 function getRestartFromFileUploadingSessionStorageName() {
 	return "opal-bulk-marking-restart-from-upload";
+}
+
+function getGeneralInformationButtonId() {
+	"opal-bulk-marking-general-information-button";
+}
+
+function getDownloadInformationButtonId() {
+	"opal-bulk-marking-download-information-button";
+}
+
+function getUploadInformationButtonId() {
+	"opal-bulk-marking-upload-information-button";
 }
 
 

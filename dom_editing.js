@@ -5,6 +5,7 @@ function getMainForm() {
 
 function setup() {
 	if (isTablePage()) {
+		setLanguage();
 		getMainForm().prepend(getHeader());
 		setHomeHeader();
 	}
@@ -39,8 +40,12 @@ function setHomeHeader() {
 	clearChildren(header).then(
 		(resolve) => {
 			header.appendChild(getDownloadButton());
-			header.appendChild(createEmptySpan());
+
+			header.appendChild(createEmptySpan());			
 			header.appendChild(getUploadButton());
+
+			header.appendChild(createEmptySpan());
+			header.appendChild(getGeneralInformationButton());
 		}
 	);
 }
@@ -50,7 +55,7 @@ function setBulkDownloadHeader() {
 		if (res === 0){
 			setHeader();
 		} else {
-			throw new Error("Uexpected error occurred. Unable to sow all students.");
+			throw new Error(getStudentShowingErrorMessage());
 		}
 	});
 
@@ -60,16 +65,19 @@ function setBulkDownloadHeader() {
 			(resolve) => {
 				getMainForm().prepend(header);
 
-				header.appendChild(getStudentsDropdown(getStartDropDownId(), "select first student"));
+				header.appendChild(getStudentsDropdown(getStartDropDownId(), getFirstStudentText()));
 				header.appendChild(createEmptySpan());
 
-				header.appendChild(getStudentsDropdown(getEndDropDownId(), "select last student"));
+				header.appendChild(getStudentsDropdown(getEndDropDownId(), getLastStudentText()));
 				header.appendChild(createEmptySpan());
 
 				header.appendChild(getDownloadFileNameDropdown());
 				header.appendChild(createEmptySpan());
 
 				header.appendChild(getStartDownloadButton());
+				header.appendChild(createEmptySpan());
+
+				header.appendChild(getDownloadInformationButton());
 				header.appendChild(createEmptySpan());
 
 				header.appendChild(getBackButton());
@@ -83,7 +91,7 @@ function setBulkUploadHeader() {
 		if (res === 0){
 			setHeader();
 		} else {
-			throw new Error("Uexpected error occurred. Unable to sow all students.");
+			throw new Error(getStudentShowingErrorMessage());
 		}
 	});
 
@@ -99,11 +107,22 @@ function setBulkUploadHeader() {
 				header.appendChild(getUploadSelectedButton())
 				header.appendChild(createEmptySpan());
 
+				header.appendChild(getDownloadInformationButton());
+				header.appendChild(createEmptySpan());
+
 				header.appendChild(getBackButton());
 			});
 		return;
 	}
 }
+
+
+function showGeneralInformation() { alert(getGeneralInformationText()); }
+
+function showUploadInformation() { alert(getUploadInformationText()); }
+
+function showDownloadInformation() { alert(getDownloadInformationText()); }
+
 
 function getElement(element_id, elementCreator) {
 	let element = document.getElementById(element_id);
@@ -124,6 +143,48 @@ function createHeader() {
 	return header;
 }
 
+function getGeneralInformationButton() {
+	return getElement(getGeneralInformationButtonId(), createGeneralInformationButton);
+}
+
+function createGeneralInformationButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getGeneralInformationButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", showGeneralInformation);
+	button.setAttribute("value", getInformationButtonValue());
+	return button;
+}
+
+function getDownloadInformationButton() {
+	return getElement(getDownloadInformationButtonId(), createDownloadInformationButton);
+}
+
+function createDownloadInformationButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getDownloadButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", showDownloadInformation);
+	button.setAttribute("value", getInformationButtonValue());
+	return button;
+}
+
+function getUploadInformationButton() {
+	return getElement(getUploadInformationButtonId(), createUploadInformationButton);
+}
+
+function createUploadInformationButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getUploadButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", showUploadInformation);
+	button.setAttribute("value", getInformationButtonValue());
+	return button;
+}
+
 function getDownloadButton() {
 	return getElement(getDownloadButtonId(), createDownloadButton);
 }
@@ -134,7 +195,7 @@ function createDownloadButton() {
 	button.setAttribute("id", getDownloadButtonId());
 	button.setAttribute("class", 'opal-bulk-button');
 	button.addEventListener("click", setBulkDownloadHeader);
-	button.setAttribute("value", "Download submissions");
+	button.setAttribute("value", getDownloadButtonValue());
 	return button;
 }
 
@@ -148,7 +209,7 @@ function createStartDownloadButton() {
 	button.setAttribute("id", getStartDownloadButtonId());
 	button.setAttribute("class", 'opal-bulk-button');
 	button.addEventListener("click", downloadSubmissionsRange);
-	button.setAttribute("value", getDownloadButtonValue());
+	button.setAttribute("value", getStartDownloadButtonValue());
 	return button;
 }
 
@@ -162,7 +223,7 @@ function createUploadButton() {
 	button.setAttribute("id", getUploadButtonId());
 	button.setAttribute("class", 'opal-bulk-button');
 	button.addEventListener("click", setBulkUploadHeader);
-	button.setAttribute("value", "Upload marking");
+	button.setAttribute("value", getUploadButtonValue());
 	return button;
 }
 
@@ -203,7 +264,7 @@ function createBackButton() {
 	button.setAttribute("id", getBackButtonId());
 	button.setAttribute("class", 'opal-bulk-button');
 	button.addEventListener("click", setHomeHeader);
-	button.setAttribute("value", "Back");
+	button.setAttribute("value", getBackButtonValue());
 	return button;
 }
 
@@ -240,14 +301,14 @@ function createDownloadFileNameDropdown() {
 	container.setAttribute("class", "opal-bulk-dropdown-container");
 
 	let message = document.createElement("span");
-	message.innerHTML = "name submission as "
+	message.innerHTML = getSubmissionNamingText();
 	
 	let dropdown = document.createElement("select");
 	dropdown.setAttribute("id", getDownloadFileNameDropdownId());
 	dropdown.setAttribute("class", "opal-bulk-dropdown");
 
-	dropdown.options.add( new Option("<student id>.pdf","select", true, true));
-	dropdown.options.add( new Option("<surname>_<name>.pdf","surname_name"));
+	dropdown.options.add( new Option(getStudentIdNamingFormatText(),"select", true, true));
+	dropdown.options.add( new Option(getStudentSurnameNamingFormatText(),"surname_name"));
 
 	container.appendChild(message);
 	container.appendChild(dropdown);

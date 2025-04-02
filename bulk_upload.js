@@ -44,8 +44,7 @@ function resumeUploading() {
 		} else if (remaining_submissions.length === 0) { // Otherwise if there are no files left to upload we also do nothing.
 			sessionStorage.removeItem(getUploadingFilesSessionStorageName());
 		} else {  // Finally if there are some files left to upload but we where not expecting there to be any we ask the user what to do.
-			message = "It looks like you stopped the grade uploading process before it finished.";
-			message = message + "\nDo you wish to resume uploading of the following grades?:";
+			message = getUploadStoppedText();
 			message = message + getStudentsGradesMessage(remaining_submissions);
 			if (confirm(message)){
 				uploadMatchingSubmissions().then((res) => { onUploadEnd(true); });
@@ -129,7 +128,7 @@ function saveGrade(grade) {
 		let button_list = document.getElementsByClassName("b_button");
 		let save_button;
 		for (let button of button_list) {
-			if (button.value === "Save") {
+			if (button.value === getSaveButtonText()) {
 				save_button = button;
 			}
 		} 
@@ -155,14 +154,14 @@ function uploadFile(base_64_file) {
 			fetch(base_64_file).then((res) => {
 				return res.blob()
 			}).then((blob) => {
-				let file =  new File([blob], "marked_submission.pdf",{ type: "application/pdf" });
+				let file =  new File([blob], getMarkedPDFName(),{ type: "application/pdf" });
 				data_transfer.items.add(file);
 				file_input.files = data_transfer.files;
 
 				let button_list = document.getElementsByTagName("button");
 				let upload_button;
 				for (let button of button_list) {
-					if (button.value === "Upload") {
+					if (button.value === getUploadButtonText()) {
 						upload_button = button;
 						break;
 					}
@@ -253,9 +252,7 @@ function confirmUpload(matching_submission_list, non_matching_submission_list, w
 
 	// Files in wrong format.
 	if (wrong_format_files.length !== 0) {
-		message = message + "The following files are in an unrecognized format.";
-		message = message + "\nPlease make sure your files are either in the format '<student_surname>_<student_name>_<grade>' or in the format '<student_id>_<grade>'.";
-		message = message + "\nHere <grade> should be in the format '<integer>_<decimals>' or simply '<integer>'";
+		message = message  + getUnrecognizedFormatText();
 		for (let file of wrong_format_files) {
 			message = message + "\n\t" + file.name;
 		}
@@ -264,23 +261,22 @@ function confirmUpload(matching_submission_list, non_matching_submission_list, w
 	// Non matching submissions.
 	if (non_matching_submission_list.length !== 0) {
 		if (message !== "") { message = message + "\n\n"; }
-		message = message + "I was unable to find students corresponding to the following files.";
-		message = message + "\nPlease make sure that all students are visible in the table below and that the names in the files are correct.";
+		message = message + getNonMatchingStudentsText();
 		for (let submission of non_matching_submission_list) {
 			message = message + "\n\t" + submission.file.name;
 		}
 	}
 
 	// matching submissions.
-	//   If matching submission doesn' exist.
+	//   If matching submission doesn't exist.
 	if (message !== "") { message = message + "\n\n"; }
 	if (matching_submission_list.length === 0) {
-		message = message + "I was unable to find any files in the correct format matching to any of the visible students."
+		message = message + getNoFilesMatchedText();
 		alert(message);
 		return false;
 	}
 	//   If matching submission exists.
-	message = message + "Please confirm that you want to upload the following grades:"
+	message = message + getConfirmUploadText();
 	message = message + getStudentsGradesMessage(matching_submission_list);
 
 	return confirm(message);
@@ -374,7 +370,7 @@ function MarkedSubmission(file) {
 				this.is_format_recognized = true;
 			}
 		} else if (name_parts.length >= 3) { // Here we are checking if the name is in the format "<student_surname>_<student_name>_<grade>".
-			unprocessed_grade = l.slice(2).join("_");
+			unprocessed_grade = name_parts.slice(2).join("_");
 			let grade = processGradeString(unprocessed_grade);
 			if (grade !== null) {
 				this.student_surname = name_parts[0];
@@ -402,13 +398,13 @@ function onUploadStart() {
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", uploadSubmissions);
-	button.setAttribute("value", "Uploading");
+	button.setAttribute("value", getUploadingText());
 }
 
 // This function makes all operations needed when file download ends.
 function onUploadEnd(completed = true) {
 	sessionStorage.removeItem(getUploadingFilesSessionStorageName());
-	alert(completed ? "Upload completed" : "Upload stopped");
+	alert(completed ? getUploadCompletedText() : getUploadStoppedText());
 
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", 'opal-bulk-button');

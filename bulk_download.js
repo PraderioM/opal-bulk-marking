@@ -130,14 +130,14 @@ function getDownloadFileName(student_id, surname, name, naming_code) {
 	} else if (naming_code === 1) {
 		return surname.toLowerCase()+"_"+name.toLowerCase()+".pdf";
 	} else {
-		throw new Error("Unrecognized file naming code " + naming_code);
+		throw new Error(getUnrecognizedNamingText() + naming_code);
 	}
 }
 
 
 // This function makes all operations needed when file download starts.
 function onDownloadStart() {
-	let processing_text = "Downloading";
+	let processing_text = getDownloadingText();
 
 	let button = getStartDownloadButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
@@ -147,7 +147,7 @@ function onDownloadStart() {
 
 // This function makes all operations needed when file download ends.
 function onDownloadEnd() {
-	alert("Download completed");
+	alert(getDownloadCompletedText());
 	let button = getStartDownloadButton();
 	button.setAttribute("value", getDownloadButtonValue());
 	button.setAttribute("class", "opal-bulk-button");

@@ -65,53 +65,83 @@ function showAllStudents() {
 // This function checks if the first string starts with one of the strings in a list.
 function startsWithSubstring(main_string, string_list) {
 	for (let s of string_list) {
-		if (main_string.substring(0, s.length) == s){
+		if (main_string.substring(0, s.length) === s){
 			return true;
 		}
 	}
 	return false;
 }
 
-
-// this function checks if we are currently located in the page where we can see submission for a given exercise.
-function isTablePage() {
-	if (getMainFormID() === null) {
-		return false;
+// This function looks for the main table and returns it if it can be found. Otherwise it returns 'null'.
+function getMainTable() {
+	let main_form_id = getMainFormID();
+	if (main_form_id === null) {
+		return null;
 	}
 
-	let table = document.getElementById(getTablePrefix()+getMainFormID());
+	let table = document.getElementById(getTablePrefix()+main_form_id);
 
 	if (table === undefined) {
-		return false;
+		return null;
 	}
 
-	tableHead = table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
-	allHeaders = tableHead.getElementsByTagName("th");
+	return table;
+}
 
-	if (allHeaders.length < Math.max(getSurnameColumn(), getNameColumn(), getIDColumn(), getNSubmissionsColumn()) + 1) {
-		return false;
+// This function looks for the main table and, if it finds it, returns the first column of the main table whose header
+// is among the given ones, or at least starts with one of the givn headers.
+// If either the table or the header could not be found then the function returns -1.
+function getHeaderColumn(header_name_list) {
+	let table = getMainTable();
+	if (table === null) {
+		return -1;
 	}
 
-	surnameHeader = allHeaders[getSurnameColumn()].getElementsByTagName("a");
-	if (surnameHeader.length === 0 || (!startsWithSubstring(surnameHeader[0].innerHTML, [getSurnameHeaderEnglish(), getSurnameHeaderGerman()]))) {
-		return false;
+	let table_head = table.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0];
+	let all_headers = table_head.getElementsByTagName("th");
+
+	for (let i=0; i< all_headers.length; i++){
+		let link_list = all_headers[i].getElementsByTagName("a");
+		let link_number = (i === 0)? 0: 1; // For the first column the header name is written in the first link. For the rest it's written on the second.
+
+		if (link_list.length < link_number+1) {
+			return -1;
+		}
+
+		let link = link_list[link_number]; // The header name should be written in here.
+		if (startsWithSubstring(link.innerHTML, header_name_list)) { // If we find the header we return the index.
+			return i;
+		}
 	}
 
-	nameHeader = allHeaders[getNameColumn()].getElementsByTagName("a");
-	if (nameHeader.length < 2 || !startsWithSubstring(nameHeader[1].innerHTML, [getNameHeaderEnglish(), getNameHeaderGerman()])) {
-		return false;
-	}
+	return -1;
+}
 
-	IDHeader = allHeaders[getIDColumn()].getElementsByTagName("a");
-	if (IDHeader.length < 2 || !startsWithSubstring(IDHeader[1].innerHTML, [getIDHeaderEnglish(), getIDHeaderGerman()])) {
-		return false;
-	}
+// This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the surname.
+// If either the main table or surname column cannot be found the function returns -1.
+function getSurnameColumn() {
+	return getHeaderColumn([getSurnameHeaderEnglish(), getSurnameHeaderGerman()]);
+}
 
-	nSubmissionsHeader = allHeaders[getNSubmissionsColumn()].getElementsByTagName("a");
-	if (nSubmissionsHeader.length < 2 || !startsWithSubstring(nSubmissionsHeader[1].innerHTML, [getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()])) {
-		return false;
-	}
+// This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the name.
+// If either the main table or name column cannot be found the function returns -1.
+function getNameColumn() {
+	return getHeaderColumn([getNameHeaderEnglish(), getNameHeaderGerman()]);
+}
 
-	return true;
+// This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the student ID.
+// If either the main table or student ID column cannot be found the function returns -1.
+function getIDColumn() {
+	return getHeaderColumn([getIDHeaderEnglish(), getIDHeaderGerman()]);
+}
 
+// This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the number of submissions.
+// If either the main table or number of submissions column cannot be found the function returns -1.
+function getNSubmissionsColumn() {
+	return getHeaderColumn([getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()]);
+}
+
+// This function checks if we are currently located in the page where we can see submission for a given exercise.
+function isTablePage() {
+	return (getSurnameColumn() !== -1) && (getNameColumn() !== -1) && (getIDColumn() !== -1) && (getNSubmissionsColumn() !== -1);
 }
