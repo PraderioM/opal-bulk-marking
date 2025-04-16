@@ -65,8 +65,8 @@ function getInformationButtonValue() {
 }
 
 function getGeneralInformationText() {
-	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat zwei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.",
-		"Welcome to 'opal-bulk-marking'. This add-on has two functions:\n\t1) Use the Button '" + getDownloadButtonValue() + "' to download submissions and save them in your computer in a chosen format.\n\t2) Use the button '" + getUploadButtonValue() + "' to upload corrections and save grades.");
+	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat zwei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.\nSie konnen das Code und vollständige Anweisungen für 'opal-bulk-marking' in den folgende link finden:\n\thttps://github.com/PraderioM/opal-bulk-marking",
+		"Welcome to 'opal-bulk-marking'. This add-on has two functions:\n\t1) Use the Button '" + getDownloadButtonValue() + "' to download submissions and save them in your computer in a chosen format.\n\t2) Use the button '" + getUploadButtonValue() + "' to upload corrections and save grades.\n\nThe source code for 'opal-bulk-marking' as well as more detailed instructions for its usage are freely available on:\n\thttps://github.com/PraderioM/opal-bulk-marking");
 }
 
 function getStudentShowingErrorMessage() {
