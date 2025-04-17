@@ -61,7 +61,7 @@ function getLanguageDependentText(german_text, english_text) {
 
 
 function getInformationButtonValue() {
-	return getLanguageDependentText("Hilfe", "help");
+	return getLanguageDependentText("Hilfe", "Help");
 }
 
 function getGeneralInformationText() {
