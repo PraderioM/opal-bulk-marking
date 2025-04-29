@@ -11,8 +11,9 @@ function downloadSubmissionsRange() {
 	let file_naming_code = getFileNamingCode();
 
 	let students_interval = getStudentsInterval(start_student, end_student);
+	let n = students_interval.length;
 	
-	// The function below recursively makes promises and waits until they are completed before proceeding to the next.
+	// The function below makes a promise to download the first file in a list, waits for the promise to complete and then proceeds to the next.
 	function recursiveDownload(outer_resolve) {
 		if (students_interval.length === 0) {
 			// When this point is reached all files have been downloaded and we can resolve the promise.
@@ -31,6 +32,7 @@ function downloadSubmissionsRange() {
 				() => {
 					return new Promise(
 							(inner_resolve) => {
+								onDownloadProgress(n-students_interval.length, n);
 								return outer_resolve(recursiveDownload(inner_resolve));
 							}
 						)
@@ -39,7 +41,7 @@ function downloadSubmissionsRange() {
 		}
 	}
 
-	return new Promise((resolve) => recursiveDownload(resolve));
+	return new Promise(recursiveDownload);
 }
 
 // The function below makes a promise that is resolved when a student submission file is downloaded.
@@ -49,7 +51,7 @@ function downloadStudentSubmission(student_url, file_name) {
 		// Once the stundent page is loaded we can start the download.
 		loadPage(student_url).then((student_page) => {
 			sendDownloadRequest(student_page, download_resolve);
-		})
+		});
 	}
 
 	// find the "a" to the pdf to download and retrieve its url.
@@ -126,9 +128,9 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 
 function getDownloadFileName(student_id, surname, name, naming_code) {
 	if (naming_code === 0) {
-		return student_id+".pdf";
+		return surname+"_"+name+".pdf";
 	} else if (naming_code === 1) {
-		return surname.toLowerCase()+"_"+name.toLowerCase()+".pdf";
+		return student_id+".pdf";
 	} else {
 		throw new Error(getUnrecognizedNamingText() + naming_code);
 	}
@@ -143,6 +145,13 @@ function onDownloadStart() {
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", downloadSubmissionsRange)
 	button.setAttribute("value", processing_text);
+}
+
+// This function updates a progress bar that keeps track of the download progress.
+// The value i represents the number of downloaded files while n is the total number of files to download.
+function onDownloadProgress(i, n) {
+	let button = getStartDownloadButton();
+	button.setAttribute("value", i + "/" + n);
 }
 
 // This function makes all operations needed when file download ends.

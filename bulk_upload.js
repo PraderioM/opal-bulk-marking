@@ -9,17 +9,37 @@ function uploadSubmissions() {
 
 	res = findStudentsInTable(marked_submissions);
 	let matching_submissions_list = res[0];
+	let n = matching_submissions_list.length;
 	let non_matching_submissions_list = res[1];
 
-	// As user if the upload should proceed.
+	// The function makes a promise to upload the first submission in a list, waits until it is completed and then proceeds to the next.
+	function recursiveUpload(outer_resolve) {
+		if (matching_submissions_list.length === 0) {
+			// When this point is reached all grades have been uploaded and we can resolve the promise.
+			onUploadEnd(true);
+			return outer_resolve(0);
+		} else {
+			// Get one of the remaining submissions to upload and upload it. Then repeat the process.
+			let submission = matching_submissions_list.pop();
+
+			return uploadMatchingSubmission(submission[0], submission[1]).then(
+				() => {
+					onUploadProgress(n - matching_submissions_list.length, n); // show progress of the upload process.
+					return new Promise(
+							(inner_resolve) => {
+								return outer_resolve(recursiveUpload(inner_resolve));
+							}
+						)
+					}
+				)
+		}
+	}
+
+	// Ask user if the upload should proceed.
 	function upload(resolve) {
 		let start_upload = confirmUpload(matching_submissions_list, non_matching_submissions_list, wrong_format_files);
 		if (start_upload) {
-			sessionStorage.setItem(getUploadingFilesSessionStorageName(), JSON.stringify(matching_submissions_list));
-			uploadMatchingSubmissions().then((res) => {
-				onUploadEnd(true);
-				return resolve(0);
-			});
+			return recursiveUpload(resolve);
 		} else {
 			onUploadEnd(false);
 			return resolve(1);
@@ -29,84 +49,20 @@ function uploadSubmissions() {
 	new Promise(upload);
 }
 
-// The opal system is setup so that every time that a file is uploaded the page is reloaded. When that happens we need to restart the downloading process.
-// This function checks if some files where left without uploading and if so if it was due to this quirk. If the answer to both is yes it resumes uploading
-// without further question. If the block in uploading was not due to this quirk then it asks the user if it wants to continue with the uploading process
-// and acts accordingly.
-function resumeUploading() {
-	let remaining_submissions = JSON.parse(sessionStorage.getItem(getUploadingFilesSessionStorageName()));
-	if (remaining_submissions !== null) { // We do something only when some submissions where left without uploading.
-		let stopped_from_upload = sessionStorage.getItem(getRestartFromFileUploadingSessionStorageName());
 
-		if (stopped_from_upload === "true") { // If they where left because of the page reload then we continue without promting any message.
-			sessionStorage.removeItem(getRestartFromFileUploadingSessionStorageName());
-			uploadMatchingSubmissions().then((res) => { onUploadEnd(true); });
-		} else if (remaining_submissions.length === 0) { // Otherwise if there are no files left to upload we also do nothing.
-			sessionStorage.removeItem(getUploadingFilesSessionStorageName());
-		} else {  // Finally if there are some files left to upload but we where not expecting there to be any we ask the user what to do.
-			message = getUploadStoppedText();
-			message = message + getStudentsGradesMessage(remaining_submissions);
-			if (confirm(message)){
-				uploadMatchingSubmissions().then((res) => { onUploadEnd(true); });
-			} else {
-				uploadEnd(false);
-			}
-		}
-	} 
-}
+// This function takes as input a link to a student page and a maked submision and returns a promise that is resolved when
+// marked submissions has been uploaded to the corresponding page.
+function uploadMatchingSubmission(student_url, marked_submission) {
 
+	// this function loads the student page, then saves the grade and then uploads the student's submission
+	function upload(upload_resolve) {
 
-// This function takes as input a list of tuples of the form (<student url>, <marked submission>). And returns a promise that is resolved when
-// all the marked submissions have been uploaded to the corresponding pages.
-function uploadMatchingSubmissions() {
-
-	// The function below recursively makes promises and waits until they are completed before proceeding to the next.
-	function recursiveUpload(outer_resolve) {
-		let remaining_submissions = JSON.parse(sessionStorage.getItem(getUploadingFilesSessionStorageName()));
-		if (remaining_submissions.length === 0) {
-			// When this point is reached all files have been uploaded and we can return to the main page and resolve the promise.
-			if (isTablePage()) {
-				return outer_resolve(0);
-			} else {
-				// When returning to the main page the page is reloaded so we need to state that this was intentional.
-				sessionStorage.setItem(getRestartFromFileUploadingSessionStorageName(), true);
-				document.getElementsByClassName("b_link_back")[0].click();
-				setTimeout(() => {return outer_resolve(0);}, 30000);  // TODO this will probably never run. and for not it is fixed with the if above. find a different way of doing so
-				return;
-			}
-		} else {
-			let submission_data = remaining_submissions.pop();
-			sessionStorage.setItem(getUploadingFilesSessionStorageName(), JSON.stringify(remaining_submissions));
-			let student_url = submission_data[0];
-			let marked_submission = submission_data[1];
-
-			return uploadStudentSubmission(student_url, marked_submission).then(() => {
-				return new Promise(
-					(inner_resolve) => {
-						return outer_resolve(recursiveUpload(inner_resolve));
-					});
-			});
-		}
-	}
-	return new Promise(recursiveUpload);
-}
-
-// This function returns a promise that is resolved when the given student submission is fully marked.
-function uploadStudentSubmission(student_url, marked_submission) {
-	// TODO FIND A BETTER WAY OF FOLLOWING THE STUDENT LINK.
-	function followLink(url) {
-		let scr = document.createElement("script");
-		scr.setAttribute("type", "text/javascript")
-		document.head.appendChild(scr);
-		scr.innerHTML = "setAjaxIFrameContent(decodeURI('"+url+"'))";
-
-		return new Promise((resolve) => { setTimeout(resolve, 1500)});
-	}
-
-	function upload(resolve) {
-		followLink(student_url).then(() => {
-			saveGrade(marked_submission.grade).then(() => {
-				uploadFile(marked_submission.file).then(resolve);
+		// Once the stundent page is loaded we can save the grade, once that is done we upload the submission.
+		loadPage(student_url).then((student_page) => {
+			saveGrade(student_page, marked_submission.grade).then(() => {
+				uploadFile(student_page, marked_submission.file).then(() => {
+					return upload_resolve(0);
+				});
 			});
 		});
 	}
@@ -114,64 +70,117 @@ function uploadStudentSubmission(student_url, marked_submission) {
 	return new Promise(upload);
 }
 
-// This function returns a promise that is resolved when the grade of the corresponding student has been uploaded.
-//function saveGrade(grade) {
-function saveGrade(grade) {
-	function mark(resolve) {
-		// write the grade in the appropriate input element. 
-		let fieldset = document.getElementsByTagName("fieldset")[1];
-		let form_element = fieldset.getElementsByClassName("b_form_element")[3];
-		let container = form_element.getElementsByTagName("div")[0];
-		let grade_input = container.getElementsByTagName("input")[0];
-		grade_input.value = grade;
 
-		let button_list = document.getElementsByClassName("b_button");
+// This function returns a promise that is resolved when the grade of the corresponding student has been uploaded.
+function saveGrade(student_page, grade) {
+	function mark(resolve) {
+		// The save button is linked to the form where the grade should be saved.
+		// Therefore we first obtain the save button and then modify the associated form.
+		let button_list = student_page.getElementsByClassName("b_button");
 		let save_button;
 		for (let button of button_list) {
 			if (button.value === getSaveButtonText()) {
 				save_button = button;
 			}
-		} 
-		save_button.click();
+		}
 
-		// TODO find a way to verify that the grade was saved.
-		setTimeout(resolve, 1500);
+		// The grade is stored on the third input value from the form.
+		let form = save_button.form;
+		let grade_input = form.getElementsByTagName("input")[3];
+		grade_input.value = grade;
+
+
+		let request = new XMLHttpRequest();
+		request.open("POST", form.action);
+		// The headers below are copied from the headers of the post request performed when pressing the button.
+		request.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+		request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		
+		request.setRequestHeader("Upgrade-Insecure-Requests", "1");
+		request.setRequestHeader("Priority", "u=4");
+
+		request.addEventListener('load', function() {
+			if (request.status === 200) {
+				resolve(0);
+			} else {
+				resolve(1);
+			}
+		});
+
+		let form_data = new FormData(form);
+		form_data.set("dispatchuri", save_button.name);
+		form_data.set("dispatchevent", "2");
+		let url_encoded_form_data = new URLSearchParams(form_data);
+
+		request.send([url_encoded_form_data]);
 	}
 
 	return new Promise(mark);
 }
 
+
 // This function returns a promise that is resolved when the marked submission of the corresponding student is uploaded.
-function uploadFile(base_64_file) {
+function uploadFile(student_page, file) {
 	function openUploadPage() {
-		return new Promise((resolve) => { upload_button = document.getElementsByClassName("b_briefcase_upload")[0].click(); setTimeout(resolve, 1000) });
+		return new Promise((resolve) => {
+			let upload_button = student_page.getElementsByClassName("b_briefcase_upload")[0];
+			loadPage(upload_button.href).then((res) => {
+				// The response of loading the above page is an htmlElement whose head contains a single script
+				// that is used on page load to populate the body. We use that script in order to create
+				// the body directly without loading the page.
+				let res_html = res.documentElement.innerHTML;
+				let start = res_html.search("\"hfrag\":\"<div")+9;
+				let end = res_html.search("div>\",\"cidvis\"")+4;
+				let loaded_page = student_page.createElement("div");
+				loaded_page.innerHTML = JSON.parse("\""+res_html.substring(start, end)+"\"");
+				resolve(loaded_page);
+			});
+		});
 	}
 
 	function upload(resolve) {
-		openUploadPage().then(() => {
-			let file_input = document.getElementsByClassName("b_fileinput_realchooser")[0];
-			const data_transfer = new DataTransfer();
-			fetch(base_64_file).then((res) => {
-				return res.blob()
-			}).then((blob) => {
-				let file =  new File([blob], getMarkedPDFName(),{ type: "application/pdf" });
-				data_transfer.items.add(file);
-				file_input.files = data_transfer.files;
-
-				let button_list = document.getElementsByTagName("button");
-				let upload_button;
-				for (let button of button_list) {
-					if (button.value === getUploadButtonText()) {
-						upload_button = button;
-						break;
-					}
+		openUploadPage().then((upload_page) => {
+			// The upload button is linked to the form where the files should be loaded.
+			// Therefore we first obtain the upload button and then modify the associated form.
+			let button_list = upload_page.getElementsByTagName("button");
+			let upload_button;
+			for (let button of button_list) {
+				if (button.value === getUploadButtonText()) {
+					upload_button = button;
 				}
+			}
 
-				sessionStorage.setItem(getRestartFromFileUploadingSessionStorageName(), true);
-				upload_button.click();
+			let form = upload_button.form;
 
-				setTimeout(resolve, 1000);
+			// Upload the file by creating a data transfer element.
+			let file_input = form.getElementsByClassName("b_fileinput_realchooser")[0];
+			let blob = file.slice(0, file.size, 'application/pdf');
+			let file_to_upload =  new File([blob], getMarkedPDFName(),{ type: file.type});
+			const data_transfer = new DataTransfer();
+			data_transfer.items.add(file_to_upload);
+			file_input.files = data_transfer.files;
+
+			// Run an HTTP request posting the form.
+			let request = new XMLHttpRequest();
+			request.open("POST", form.action);
+			// The headers below are copied from the headers of the post request performed when pressing the button.
+			request.setRequestHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+			request.setRequestHeader("Priority", "u=0, i");
+			request.setRequestHeader("Upgrade-Insecure-Requests", "1");
+
+
+			request.addEventListener('load', function() {
+				if (request.status === 200) {
+					resolve(0);
+				} else {
+					resolve(1);
+				}
 			});
+
+			let form_data = new FormData(form);
+			form_data.set("dispatchuri", form.name);
+			form_data.set("dispatchevent", "2");
+			request.send(form_data);
 		});
 
 		return;
@@ -209,7 +218,7 @@ function findStudentsInTable(marked_submissions_list) {
 	let non_matching_submissions = [... marked_submissions_list];
 	let matching_students = [];
 
-	// We iterate over all the students visible in the table body until we find the 
+	// Get table.
 	let table = document.getElementById(getTablePrefix() + getMainFormID());
 	let tableBody = table.getElementsByTagName("tbody")[0];
 
@@ -226,7 +235,8 @@ function findStudentsInTable(marked_submissions_list) {
 		for (let i = 0; i < non_matching_submissions.length; i++) {
 			let marked_submission = non_matching_submissions[i];
 			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non matching ones.
-			if ((marked_submission.student_name === student_name && marked_submission.student_surname === student_surname) || marked_submission.student_id === student_id) {
+			if ((marked_submission.student_name === student_name && marked_submission.student_surname === student_surname && student_name !== "" && student_surname !== "") || (marked_submission.student_id === student_id && student_id!=="")) {
+
 				// We update the student info with the matching student
 				marked_submission.student_name = student_name;
 				marked_submission.student_surname = student_surname;
@@ -263,7 +273,7 @@ function confirmUpload(matching_submission_list, non_matching_submission_list, w
 		if (message !== "") { message = message + "\n\n"; }
 		message = message + getNonMatchingStudentsText();
 		for (let submission of non_matching_submission_list) {
-			message = message + "\n\t" + submission.file.name;
+			message = message + "\n\t" + submission.file_name;
 		}
 	}
 
@@ -330,8 +340,8 @@ function processGradeString(str) {
 // This class is used to store data relative to a marked submission.
 function MarkedSubmission(file) {
 	// We start by initializing all entries to empty strings and only fill them if the naming format is correct.
-	this.file = ""; // File needs to be converted to base64 in order to be preserved between sessions.
-	toBase64(file).then((res) => this.file = res);
+	this.file = file;
+	this.file_name = file.name;
 	this.student_id = "";
 	this.student_name = "";
 	this.student_surname = "";
@@ -375,6 +385,7 @@ function MarkedSubmission(file) {
 			if (grade !== null) {
 				this.student_surname = name_parts[0];
 				this.student_name = name_parts[1];
+				this.grade = grade;
 				this.is_format_recognized = true;
 			}
 
@@ -392,13 +403,20 @@ function toBase64(file) {
 	});
 }
 
-
 // This function makes all operations needed when file download starts.
 function onUploadStart() {
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", uploadSubmissions);
 	button.setAttribute("value", getUploadingText());
+}
+
+
+// This function updates a progress bar that keeps track of the upload progress.
+// The value i represents the number of uploaded files while n is the total number of files to upload.
+function onUploadProgress(i, n) {
+	let button = getUploadSelectedButton();
+	button.setAttribute("value", i + "/" + n);
 }
 
 // This function makes all operations needed when file download ends.

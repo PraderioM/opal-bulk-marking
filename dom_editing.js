@@ -307,8 +307,8 @@ function createDownloadFileNameDropdown() {
 	dropdown.setAttribute("id", getDownloadFileNameDropdownId());
 	dropdown.setAttribute("class", "opal-bulk-dropdown");
 
-	dropdown.options.add( new Option(getStudentIdNamingFormatText(),"select", true, true));
-	dropdown.options.add( new Option(getStudentSurnameNamingFormatText(),"surname_name"));
+	dropdown.options.add( new Option(getStudentSurnameNamingFormatText(),"surname_name", true, true));
+	dropdown.options.add( new Option(getStudentIdNamingFormatText(),"student_id"));
 
 	container.appendChild(message);
 	container.appendChild(dropdown);
