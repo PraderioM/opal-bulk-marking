@@ -2,7 +2,9 @@
 // While downloading the download submission range button is disabled and its text replaced by a processing message.
 function downloadSubmissionsRange() {
 	// We temporarily disable the download submissions button and show that the downloads are being processed.
-	onDownloadStart();
+	let button = getStartDownloadButton();
+	button.setAttribute("class", "opal-bulk-disabled-button");
+	button.removeEventListener("click", downloadSubmissionsRange);
 
 	// Getting first, last student and naming convention and then obtaining all information relative to the requested list of students.
 	// We will then iterate over this resulting list.
@@ -12,6 +14,9 @@ function downloadSubmissionsRange() {
 
 	let students_interval = getStudentsInterval(start_student, end_student);
 	let n = students_interval.length;
+
+	// We prepare the progressbar for downloading.
+	onDownloadStart(n);
 	
 	// The function below makes a promise to download the first file in a list, waits for the promise to complete and then proceeds to the next.
 	function recursiveDownload(outer_resolve) {
@@ -174,29 +179,23 @@ function getDownloadFileName(student_id, surname, name, naming_code) {
 
 
 // This function makes all operations needed when file download starts.
-function onDownloadStart() {
-	let processing_text = getDownloadingText();
-
-	let button = getStartDownloadButton();
-	button.setAttribute("class", "opal-bulk-disabled-button");
-	button.removeEventListener("click", downloadSubmissionsRange)
-	button.setAttribute("value", processing_text);
+function onDownloadStart(n) {
+	setBulkDownloadProgress(n);
 }
 
 // This function updates a progress bar that keeps track of the download progress.
 // The value i represents the number of downloaded files while n is the total number of files to download.
 function onDownloadProgress(i, n) {
-	let button = getStartDownloadButton();
-	button.setAttribute("value", i + "/" + n);
+	let progress = getDownloadProgressBar(n);
+	progress.setAttribute("value", i);	
+	let label = getDownloadProgressLabel(n);
+	label.innerHTML = getDownloadingText() + i + "/" + n;
 }
 
 // This function makes all operations needed when file download ends.
 function onDownloadEnd() {
 	alert(getDownloadCompletedText());
-	let button = getStartDownloadButton();
-	button.setAttribute("value", getDownloadButtonValue());
-	button.setAttribute("class", "opal-bulk-button");
-	button.addEventListener("click", downloadSubmissionsRange);
+	setBulkDownloadHeader();
 }
 
 

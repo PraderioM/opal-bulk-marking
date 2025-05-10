@@ -86,6 +86,18 @@ function setBulkDownloadHeader() {
 	}
 }
 
+function setBulkDownloadProgress(n) {
+	let header = getHeader();
+	clearChildren(header).then(
+		(resolve) => {
+			getMainForm().prepend(header);
+
+			header.appendChild(getDownloadProgressLabel());
+			header.appendChild(getDownloadProgressBar(n));
+		});
+	return;
+}
+
 function setBulkUploadHeader() {
 		showAllStudents().then((res) => {
 		if (res === 0){
@@ -114,6 +126,18 @@ function setBulkUploadHeader() {
 			});
 		return;
 	}
+}
+
+function setBulkUploadProgress(n) {
+	let header = getHeader();
+	clearChildren(header).then(
+		(resolve) => {
+			getMainForm().prepend(header);
+
+			header.appendChild(getUploadProgressLabel());
+			header.appendChild(getUploadProgressBar(n));
+		});
+	return;
 }
 
 
@@ -314,4 +338,66 @@ function createDownloadFileNameDropdown() {
 	container.appendChild(dropdown);
 
 	return container;
+}
+
+function getDownloadProgressLabel(n) {
+	return getElement(getDownloadProgressLabelId(), function () {return createDownloadProgressLabel(n)});
+}
+
+function createDownloadProgressLabel(n) {
+
+	let label = document.createElement("label");
+	label.setAttribute("id", getDownloadProgressLabelId());
+	label.setAttribute("class", "opal-bulk-label");
+	label.setAttribute("for", getDownloadProgressBarId());
+	label.innerHTML = getDownloadingText() + 0 + "/" + n;
+
+	return label;
+}
+
+function getUploadProgressLabel(n) {
+	return getElement(getUploadProgressLabelId(), function () {return createUploadProgressLabel(n)});
+}
+
+function createUploadProgressLabel(n) {
+
+	let label = document.createElement("label");
+	label.setAttribute("id", getUploadProgressLabelId());
+	label.setAttribute("class", "opal-bulk-label");
+	label.setAttribute("for", getUploadProgressBarId());
+	label.innerHTML = getUploadingText() + 0 + "/" + n;
+
+	return label;
+}
+
+function getDownloadProgressBar(n) {
+	return getElement(getDownloadProgressBarId(), function () {return createDownloadProgressBar(n)});
+}
+
+
+function createDownloadProgressBar(n) {
+
+	let progress = document.createElement("progress");
+	progress.setAttribute("id", getDownloadProgressBarId());
+	progress.setAttribute("class", "opal-bulk-progress");
+	progress.setAttribute("max", n);
+	progress.setAttribute("value", 0);
+
+	return progress;
+}
+
+function getUploadProgressBar(n) {
+	return getElement(getUploadProgressBarId(), function () {return createUploadProgressBar(n)});
+}
+
+
+function createUploadProgressBar(n) {
+
+	let progress = document.createElement("progress");
+	progress.setAttribute("id", getUploadProgressBarId());
+	progress.setAttribute("class", "opal-bulk-progress");
+	progress.setAttribute("max", n);
+	progress.setAttribute("value", 0);
+
+	return progress;
 }

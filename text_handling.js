@@ -118,7 +118,7 @@ function getUnrecognizedNamingText() {
 }
 
 function getDownloadingText() {
-	return getLanguageDependentText("Lädt herunter", "Downloading");
+	return getLanguageDependentText("Lädt herunter ", "Downloading ");
 }
 
 function getDownloadCompletedText() {
@@ -197,7 +197,7 @@ function getConfirmUploadText() {
 }
 
 function getUploadingText() {
-	return getLanguageDependentText("Lädt hoch", "Uploading");
+	return getLanguageDependentText("Lädt hoch ", "Uploading ");
 }
 
 function getUploadCompletedText() {

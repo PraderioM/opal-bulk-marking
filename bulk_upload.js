@@ -1,6 +1,9 @@
 // This function returns a promise that is completed when all uploaded files have been uploaded and the students marked.
 function uploadSubmissions() {
-	onUploadStart();
+	// Temporarily disable the upload start button while we are setting up the progress bar
+	let button = getUploadSelectedButton();
+	button.setAttribute("class", "opal-bulk-disabled-button");
+	button.removeEventListener("click", uploadSubmissions);
 
 	let input_files = document.getElementById(getSubmissionsInputId());
 	let res = preProcessFiles(input_files.files); // Separate the files between the ones in the correct format and the ones in the wrong format.
@@ -11,6 +14,8 @@ function uploadSubmissions() {
 	let matching_submissions_list = res[0];
 	let n = matching_submissions_list.length;
 	let non_matching_submissions_list = res[1];
+
+	onUploadStart(n);
 
 	// The function makes a promise to upload the first submission in a list, waits until it is completed and then proceeds to the next.
 	function recursiveUpload(outer_resolve) {
@@ -394,38 +399,24 @@ function MarkedSubmission(file) {
 }
 
 
-function toBase64(file) {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		reader.onload = () => resolve(reader.result);
-		reader.onerror = reject;
-	});
-}
-
 // This function makes all operations needed when file download starts.
 function onUploadStart() {
-	let button = getUploadSelectedButton();
-	button.setAttribute("class", "opal-bulk-disabled-button");
-	button.removeEventListener("click", uploadSubmissions);
-	button.setAttribute("value", getUploadingText());
+	setBulkUploadProgress(n);
 }
 
 
 // This function updates a progress bar that keeps track of the upload progress.
 // The value i represents the number of uploaded files while n is the total number of files to upload.
 function onUploadProgress(i, n) {
-	let button = getUploadSelectedButton();
-	button.setAttribute("value", i + "/" + n);
+	let progress = getUploadProgressBar(n);
+	progress.setAttribute("value", i);
+	let label = getDownloadProgressLabel(n);
+	label.innerHTML = getDownloadingText() + i + "/" + n;
 }
 
 // This function makes all operations needed when file download ends.
 function onUploadEnd(completed = true) {
-	sessionStorage.removeItem(getUploadingFilesSessionStorageName());
 	alert(completed ? getUploadCompletedText() : getUploadStoppedText());
 
-	let button = getUploadSelectedButton();
-	button.setAttribute("class", 'opal-bulk-button');
-	button.setAttribute("value", getUploadSelectedButtonValue());
-	button.addEventListener("click", uploadSubmissions);
+	setBulkUploadHeader();
 }

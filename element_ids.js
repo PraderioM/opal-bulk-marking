@@ -92,15 +92,31 @@ function getRestartFromFileUploadingSessionStorageName() {
 }
 
 function getGeneralInformationButtonId() {
-	"opal-bulk-marking-general-information-button";
+	return "opal-bulk-marking-general-information-button";
 }
 
 function getDownloadInformationButtonId() {
-	"opal-bulk-marking-download-information-button";
+	return "opal-bulk-marking-download-information-button";
 }
 
 function getUploadInformationButtonId() {
-	"opal-bulk-marking-upload-information-button";
+	return "opal-bulk-marking-upload-information-button";
+}
+
+function getDownloadProgressLabelId() {
+	return "opal-bulk-marking-download-progress-label";
+}
+
+function getDownloadProgressBarId() {
+	return "opal-bulk-marking-download-progress-bar";
+}
+
+function getUploadProgressLabelId() {
+	return "opal-bulk-marking-upload-progress-label";
+}
+
+function getUploadProgressBarId() {
+	return "opal-bulk-marking-upload-progress-bar";
 }
 
 
