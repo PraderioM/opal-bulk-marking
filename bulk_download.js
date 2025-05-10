@@ -50,27 +50,63 @@ function downloadStudentSubmission(student_url, file_name) {
 	function download(download_resolve) {
 		// Once the stundent page is loaded we can start the download.
 		loadPage(student_url).then((student_page) => {
-			sendDownloadRequest(student_page, download_resolve);
+			downloadFiles(student_page, download_resolve);
 		});
 	}
 
-	// find the "a" to the pdf to download and retrieve its url.
-	function sendDownloadRequest(stundet_page, download_resolve) {
+	function recursiveDownload(download_data_list, download_resolve) {
+		if (download_data_list.length === 0) {
+			download_resolve(0); // Once all files are downloaded we resolve our promise.
+		} else {
+			// First element of download data is the link to a file and the second the file name.
+			let download_data = download_data_list.pop();
+			let request = new XMLHttpRequest();
+			request.responseType = 'blob';
+			request.open("GET", download_data[0]);
+			request.addEventListener('load', function() {
+				save(request.response, download_data[1]); // this function is in the utils file and saves the pdf under the specified file name.
+				// Once one file is downloaded we proceed to the next one. 
+				recursiveDownload(download_data_list, download_resolve);
+			});
+			request.send();
+		}
+	}
+
+	// Find all the files submitted and download all of them.
+	function downloadFiles(stundet_page, download_resolve) {
 		// The submission can be found following a link in the third column row one of the table body of the only table of class "b_briefcase_filetable".
 		let table = stundet_page.getElementsByClassName("b_briefcase_filetable")[0];
 		let tbody = table.tBodies[0];
-		let row = tbody.firstChild;
+		let rows = tbody.children;
+		let download_links = preProcessLinks(rows);
+
+		recursiveDownload(download_links, download_resolve);
+	}
+
+	// This function looks at all the rows in the submission table and prepares the appropriate links.
+	function preProcessLinks(row_list) {
+		let pdf_download_column = getPDFDownloadColumn();
+
+		if (row_list.length === 1) {
+			let cell = row_list[0].children[pdf_download_column];
+			return [[getLinkFromRow(row_list[0]), file_name]];
+		} else {
+			let base_file_name = file_name.slice(0,-4) + "_" + getSubmissionNumberText() + "_";
+			let output = [];
+			let i = 1;
+			for (let row of row_list) {
+				output.push([getLinkFromRow(row), base_file_name + i + ".pdf"]);
+				i = i + 1;
+			}
+			return output;
+		}
+	}
+
+	// This function retrieves the link to a submission from a row in the submission table.
+	function getLinkFromRow(row) {
 		let cell = row.children[getPDFDownloadColumn()];
 		let link = cell.firstChild;
-
-		let request = new XMLHttpRequest();
-		request.responseType = 'blob';
-		request.open("GET", link.href);
-		request.addEventListener('load', function() {
-			save(request.response, file_name); // this function is in the utils file and saves the pdf under the specified file name.
-			download_resolve(0);
-		});
-		request.send();
+		return link.href;
 	}
 
 

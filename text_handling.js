@@ -141,6 +141,10 @@ function getStudentSurnameNamingFormatText() {
 	return getLanguageDependentText("<nachname>_<vorname>.pdf", "<surname>_<name>.pdf");
 }
 
+function getSubmissionNumberText() {
+	return getLanguageDependentText("vorlage", "submission");
+}
+
 
 //*************************************************//
 // BULK UPLOAD REGION.
