@@ -36,18 +36,23 @@ function clearChildren(dom_element) {
 }
 
 function setHomeHeader() {
-	let header = getHeader();
-	clearChildren(header).then(
-		(resolve) => {
-			header.appendChild(getDownloadButton());
+	if (!MODIFYING_PAGE) {
+		MODIFYING_PAGE = true;
+		let header = getHeader();
+		clearChildren(header).then(
+			(resolve) => {
+				header.appendChild(getDownloadButton());
 
-			header.appendChild(createEmptySpan());			
-			header.appendChild(getUploadButton());
+				header.appendChild(createEmptySpan());			
+				header.appendChild(getUploadButton());
 
-			header.appendChild(createEmptySpan());
-			header.appendChild(getGeneralInformationButton());
-		}
-	);
+				header.appendChild(createEmptySpan());
+				header.appendChild(getGeneralInformationButton());
+
+				MODIFYING_PAGE = false;
+			}
+		);
+	}
 }
 
 function setBulkDownloadHeader() {
@@ -60,41 +65,51 @@ function setBulkDownloadHeader() {
 	});
 
 	function setHeader() {
-		let header = getHeader();
-		clearChildren(header).then(
-			(resolve) => {
-				getMainForm().prepend(header);
+		if (!MODIFYING_PAGE) {
+			MODIFYING_PAGE = true;
+			let header = getHeader();
+			clearChildren(header).then(
+				(resolve) => {
+					getMainForm().prepend(header);
 
-				header.appendChild(getStudentsDropdown(getStartDropDownId(), getFirstStudentText()));
-				header.appendChild(createEmptySpan());
+					header.appendChild(getStudentsDropdown(getStartDropDownId(), getFirstStudentText()));
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getStudentsDropdown(getEndDropDownId(), getLastStudentText()));
-				header.appendChild(createEmptySpan());
+					header.appendChild(getStudentsDropdown(getEndDropDownId(), getLastStudentText()));
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getDownloadFileNameDropdown());
-				header.appendChild(createEmptySpan());
+					header.appendChild(getDownloadFileNameDropdown());
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getStartDownloadButton());
-				header.appendChild(createEmptySpan());
+					header.appendChild(getStartDownloadButton());
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getDownloadInformationButton());
-				header.appendChild(createEmptySpan());
+					header.appendChild(getDownloadInformationButton());
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getBackButton());
-			});
+					header.appendChild(getBackButton());
+
+					MODIFYING_PAGE = false;
+				});
+			}
 		return;
 	}
 }
 
 function setBulkDownloadProgress(n) {
-	let header = getHeader();
-	clearChildren(header).then(
-		(resolve) => {
-			getMainForm().prepend(header);
+	if (!MODIFYING_PAGE) {
+		MODIFYING_PAGE = true;
+		let header = getHeader();
+		clearChildren(header).then(
+			(resolve) => {
+				getMainForm().prepend(header);
 
-			header.appendChild(getDownloadProgressLabel());
-			header.appendChild(getDownloadProgressBar(n));
-		});
+				header.appendChild(getDownloadProgressLabel());
+				header.appendChild(getDownloadProgressBar(n));
+
+				MODIFYING_PAGE = false;
+			});
+		}
 	return;
 }
 
@@ -107,36 +122,46 @@ function setBulkUploadHeader() {
 		}
 	});
 
-	function setHeader() {
-		let header = getHeader();
-		clearChildren(header).then(
-			(resolve) => {
-				getMainForm().prepend(header);
+	function setHeader() {		
+		if (!MODIFYING_PAGE) {
+			MODIFYING_PAGE = true;
+			let header = getHeader();
+			clearChildren(header).then(
+				(resolve) => {
+					getMainForm().prepend(header);
 
-				header.appendChild(getSubmissionsInput())
-				header.appendChild(createEmptySpan());
+					header.appendChild(getSubmissionsInput())
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getUploadSelectedButton())
-				header.appendChild(createEmptySpan());
+					header.appendChild(getUploadSelectedButton())
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getDownloadInformationButton());
-				header.appendChild(createEmptySpan());
+					header.appendChild(getDownloadInformationButton());
+					header.appendChild(createEmptySpan());
 
-				header.appendChild(getBackButton());
-			});
+					header.appendChild(getBackButton());
+
+					MODIFYING_PAGE = false;
+				});
+			}
 		return;
 	}
 }
 
 function setBulkUploadProgress(n) {
-	let header = getHeader();
-	clearChildren(header).then(
-		(resolve) => {
-			getMainForm().prepend(header);
+	if (!MODIFYING_PAGE) {
+		MODIFYING_PAGE = true;
+		let header = getHeader();
+		clearChildren(header).then(
+			(resolve) => {
+				getMainForm().prepend(header);
 
-			header.appendChild(getUploadProgressLabel());
-			header.appendChild(getUploadProgressBar(n));
-		});
+				header.appendChild(getUploadProgressLabel());
+				header.appendChild(getUploadProgressBar(n));
+
+				MODIFYING_PAGE = false;
+			});
+		}
 	return;
 }
 

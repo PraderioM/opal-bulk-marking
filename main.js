@@ -1,3 +1,5 @@
+let MODIFYING_PAGE = false;
+
 main();
 
 function main() {
@@ -6,7 +8,7 @@ function main() {
 }
 
 function resetPage() {
-	if (document.getElementById(getHeaderId()) === null) {
+	if (document.getElementById(getHeaderId()) === null && !MODIFYING_PAGE) {
 		setup();
 	}
 }
