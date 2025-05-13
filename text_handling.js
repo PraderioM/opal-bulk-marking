@@ -156,10 +156,9 @@ function getUploadInformationText() {
 		"In order to upload the marked submissions make sure that they are named either as '<student id>_<grade>.pdf' or as '<surname>_<name>_<grade>.pdf'.\nHere '<grade>' should be written as '<integer>_<decimals>' or simply '<integer>'.\nNotice how these formats can be obtained by simply adding '_<grade>' at the end of the name of the files downloaded using this add-on.\nBefore starting the upload process you will be showed a prompt asking you to confirm the grades to be saved.\nDuring the upload process the page will be changing multiple times as it iterates over all the students whose submissions have been marked and uploads the results.\nYou can decide to stop the uploading process halfway through by simply closing the tab.\nIf you decide to do so you will then be asked if you wish to continue with the uploading process or halt it.\nNote that the marked files will all be uploaded under the name '"+getMarkedPDFName()+"'.");
 }
 
-function getUploadStoppedText() {
-	return getLanguageDependentText(
-		"Es sieht aus wie, haben Sie den Hochladen aufgehaltet ehe es fertig war.\nMochten Sie noch die nächste Korrekturen hochladen?:",
-		"It looks like you stopped the grade uploading process before it finished.\nDo you wish to resume uploading of the following grades?:");
+function getDuplicateSubmissionText() {
+	return getLanguageDependentText("Die folgende Studenten besitzen verschidener Korrekturen. Bitte achten, dass jeden student eine einzige korrektur besitzt, bevor die Hochladen anfangt:",
+		"The following students have multiple marked submissions. Please make sure that you upload a single marked file per student:");
 }
 
 function getSaveButtonText() {

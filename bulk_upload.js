@@ -13,9 +13,8 @@ function uploadSubmissions() {
 	res = findStudentsInTable(marked_submissions);
 	let matching_submissions_list = res[0];
 	let n = matching_submissions_list.length;
-	let non_matching_submissions_list = res[1];
-
-	onUploadStart(n);
+	let duplicate_submissions_list = res[1];
+	let non_matching_submissions_list = res[2];
 
 	// The function makes a promise to upload the first submission in a list, waits until it is completed and then proceeds to the next.
 	function recursiveUpload(outer_resolve) {
@@ -29,7 +28,7 @@ function uploadSubmissions() {
 
 			return uploadMatchingSubmission(submission[0], submission[1]).then(
 				() => {
-					onUploadProgress(n - matching_submissions_list.length, n); // show progress of the upload process.
+					onUploadProgress(n - matching_submissions_list.length, n); // Show progress of the upload process.
 					return new Promise(
 							(inner_resolve) => {
 								return outer_resolve(recursiveUpload(inner_resolve));
@@ -42,7 +41,15 @@ function uploadSubmissions() {
 
 	// Ask user if the upload should proceed.
 	function upload(resolve) {
+		// If some submissions where uploaded twice we stop the upload process and show a message with it.
+		if (!processDuplicateSubmissions(duplicate_submissions_list)) {
+			onUploadEnd(false);
+			return resolve(1);
+		}
+	
+		// If there are no duplicates we ask for confirmation before starting the upload process.
 		let start_upload = confirmUpload(matching_submissions_list, non_matching_submissions_list, wrong_format_files);
+		onUploadStart(n);
 		if (start_upload) {
 			return recursiveUpload(resolve);
 		} else {
@@ -214,14 +221,17 @@ function preProcessFiles(file_list) {
 	return [marked_submissions_lists, unrecognized_files_lists];
 }
 
-// This function takes as in put a list of marked submission and returns 2 lists:
-//   The first list contains pairs of the form (student_link, marked submission) and
+// This function takes as in put a list of marked submission and returns 3 lists:
+//   The first list contains pairs of the form (student_link, marked_submission) and
 //     corresponds to all those marked submissions that we could find in the table visible in the present document.
+//   The second list contains pairs of the form (student_link, marked_submission) corresponding to all those marked
+//     submissions that are detected at least twice.
 //   The second list is a list of marked submissions containing all the marked submissions that could not be found. 
 // WARNING marked submissions that match get their data completed with the one found in the table.
 function findStudentsInTable(marked_submissions_list) {
 	let non_matching_submissions = [... marked_submissions_list];
 	let matching_students = [];
+	let duplicate_submissions = [];
 
 	// Get table.
 	let table = document.getElementById(getTablePrefix() + getMainFormID());
@@ -237,7 +247,9 @@ function findStudentsInTable(marked_submissions_list) {
 		let url = link.href;
 		
 		// Check if the current student has a matching submission.
-		for (let i = 0; i < non_matching_submissions.length; i++) {
+		let i = 0;
+		let matching_student_found = false;
+		while (i < non_matching_submissions.length) {
 			let marked_submission = non_matching_submissions[i];
 			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non matching ones.
 			if ((marked_submission.student_name === student_name && marked_submission.student_surname === student_surname && student_name !== "" && student_surname !== "") || (marked_submission.student_id === student_id && student_id!=="")) {
@@ -246,9 +258,17 @@ function findStudentsInTable(marked_submissions_list) {
 				marked_submission.student_name = student_name;
 				marked_submission.student_surname = student_surname;
 				marked_submission.student_id = student_id;
-				matching_students.push([url, marked_submission]);
+				if (!matching_student_found) {
+					matching_students.push([url, marked_submission]);
+					matching_student_found = true;
+				} else {					
+					duplicate_submissions.push([url, marked_submission]);
+					break;
+				}
 				non_matching_submissions.splice(i,1);
-				break;
+			// If we have reduced in 1 the amount of non matching submissions we don't need to update the index. Otherwise we do.
+			} else {
+				i = i + 1;	
 			}
 		}
 
@@ -257,7 +277,29 @@ function findStudentsInTable(marked_submissions_list) {
 			break;
 		}
 	}
-	return [matching_students, non_matching_submissions];
+	return [matching_students, duplicate_submissions, non_matching_submissions];
+}
+
+// this function takes as input a list of  pairs of the form (student_link, marked_submission) corresponding to all those marked
+//     submissions that are detected at least twice. If the list is empty it returns true. Otherwise it shows an alert listing all
+//     students with duplicate submissions and returns false.
+function processDuplicateSubmissions(duplicate_submissions_list) {
+	if (duplicate_submissions_list.length === 0) {
+		return true;
+	}
+
+	let message = getDuplicateSubmissionText();
+//	let n = getMaxStudentFullNameLength(duplicate_submissions_list);
+
+	for (let submission_info of duplicate_submissions_list) {
+		let submission = submission_info[1];
+//		let n_space = n - submission.student_surname.length - submission.student_name.length;
+//		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.student_id;
+		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + submission.student_id;
+	}
+
+	alert(message);
+	return false;
 }
 
 
@@ -297,13 +339,17 @@ function confirmUpload(matching_submission_list, non_matching_submission_list, w
 	return confirm(message);
 }
 
-// this function takes as input a list of submissions and returns a message containing the information regarding those submissions (i.e. student name and grade).
+// This function takes as input a list of submissions and returns a message containing the information regarding those 
+// submissions (i.e. student name and grade).
 function getStudentsGradesMessage(submission_list) {
 	let message = "";
+//	let n = getMaxStudentFullNameLength(submission_list);
 	
 	for (let submission_info of submission_list) {
 		let submission = submission_info[1];
-		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + "\t" + submission.grade;
+//		let n_space = n - submission.student_surname.length - submission.student_name.length;
+//		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.grade;
+		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + submission.grade;
 	}
 
 	return message;
@@ -339,6 +385,20 @@ function processGradeString(str) {
 	}
 
 	return null;
+}
+
+// This function takes as input a list of pairs of the form (student_link, marked_submission) and an integer called "padding" (defaults to 6).
+// It then iterates over all the pairs and determines the maximum number of character that student name and student surname
+// add up to. It then return that value plus the padding.
+function getMaxStudentFullNameLength(submissions_list, padding = 6) {
+	let n = 0;
+
+	for (let submission_info of submissions_list) {
+		let submission = submission_info[1];
+		let m = submission.student_name.length + submission.student_surname.length;
+		if (m > n){ n = m; }
+	}
+	return n + padding;
 }
 
 
@@ -400,7 +460,7 @@ function MarkedSubmission(file) {
 
 
 // This function makes all operations needed when file download starts.
-function onUploadStart() {
+function onUploadStart(n) {
 	setBulkUploadProgress(n);
 }
 
