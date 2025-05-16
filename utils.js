@@ -141,7 +141,13 @@ function getNSubmissionsColumn() {
 	return getHeaderColumn([getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()]);
 }
 
+// This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the grade.
+// If either the main table or grade column cannot be found the function returns -1.
+function getGradeColumn() {
+	return getHeaderColumn([getGradeHeaderEnglish(), getGradeHeaderGerman()]);
+}
+
 // This function checks if we are currently located in the page where we can see submission for a given exercise.
 function isTablePage() {
-	return (getSurnameColumn() !== -1) && (getNameColumn() !== -1) && (getIDColumn() !== -1) && (getNSubmissionsColumn() !== -1);
+	return (getSurnameColumn() !== -1) && (getNameColumn() !== -1) && (getIDColumn() !== -1) && (getNSubmissionsColumn() !== -1 && (getGradeColumn() !== -1));
 }

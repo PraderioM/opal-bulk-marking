@@ -83,6 +83,14 @@ function getNSubmissionsHeaderGerman() {
 	return "Anz. Dateien";
 }
 
+function getGradeHeaderEnglish() {
+	return "Score";
+}
+
+function getGradeHeaderGerman() {
+	return "Punkte";
+}
+
 function getUploadingFilesSessionStorageName() {
 	return "opal-bulk-marking-uploading-files";
 }

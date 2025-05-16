@@ -295,7 +295,7 @@ function processDuplicateSubmissions(duplicate_submissions_list) {
 		let submission = submission_info[1];
 //		let n_space = n - submission.student_surname.length - submission.student_name.length;
 //		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.student_id;
-		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + submission.student_id;
+		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + "\t" + submission.student_id;
 	}
 
 	alert(message);
@@ -349,7 +349,7 @@ function getStudentsGradesMessage(submission_list) {
 		let submission = submission_info[1];
 //		let n_space = n - submission.student_surname.length - submission.student_name.length;
 //		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.grade;
-		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + submission.grade;
+		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + "\t" + submission.grade;
 	}
 
 	return message;

@@ -12,7 +12,8 @@ function downloadSubmissionsRange() {
 	let end_student = getSelectedStudent(getEndDropDownId(), ["Zzzz", "A"]);
 	let file_naming_code = getFileNamingCode();
 
-	let students_interval = getStudentsInterval(start_student, end_student);
+	let all_students_intervals = getStudentsInterval(start_student, end_student);
+	let students_interval = preProcessStudentIntervals(all_students_intervals[0], all_students_intervals[1])
 	let n = students_interval.length;
 
 	// We prepare the progressbar for downloading.
@@ -131,6 +132,49 @@ function getSelectedStudent(dropdown_id, default_value) {
 	return dropdown.options[dropdown.selectedIndex].value.split(",");
 }
 
+
+// This function takes as input two list one of non marked students and the other of marked students
+// (see "getStudentsInterval" for a description on the format) and returns a single list with the same format as
+// the non marked students list that corresponds to all the students whose submissions should be downloaded.
+// The function asks the user for confirmation as to what should be downloaded if necessary.
+// WARNING the function modfies the "non_marked_students" list and make it into the output.
+function preProcessStudentIntervals(non_marked_students, marked_students) {
+	console.log(non_marked_students);
+	console.log(marked_students);
+	
+	if (marked_students.length === 0) {
+		return non_marked_students;
+	}
+
+	// If the user confirms they want to download all students intervals then we add the markedd students intervals
+	// to the non marked ones and later return those.
+	if (confirmDownloadMarked(marked_students)) {
+		for (let student_data of marked_students) {
+			// We need to change the format of marked students data in order to match the one of non marked students data.
+			non_marked_students.push(student_data.slice(0,4));
+		}
+	}
+	return non_marked_students;
+}
+
+// This funtion takes as input a list of marked students (see "getStudentsInterval" for a description on the format) and
+// asks the user if they wish to download them of not. It then returns true if they answer yes and false otherwise.
+function confirmDownloadMarked(marked_students) {
+	message = getConfirmDownloadMarkedText();
+	for (let student_data of marked_students) {
+		let surname = student_data[0];
+		let name = student_data[1];
+		let grade = student_data[4];
+		message = message + "\n\t" + surname + ", " + name + "\t" + grade;
+	}
+
+	return confirm(message);
+}
+
+// This function takes as input the Surname and name of two sets of students and returns two lists.
+// The first list contains quadruples of the form (surname, name, student_id, student_page_link) and corresponds to students
+// whose submission has not yet been marked. The second list contains quintuples of the form 
+// (surname, name, student_id, student_page_link, grade) and corresponds to students whose sumbissions have already been marked.
 function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 	start[0] = sanitize_name(start[0]);
 	start[1] = sanitize_name(start[1]);
@@ -141,7 +185,8 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 
 	let tableBody = table.getElementsByTagName("tbody")[0];
 
-	let students_interval = [];
+	let non_marked_students = [];
+	let marked_students = [];
 
 	for (let row of tableBody.getElementsByTagName("tr")) {
 		let allEntries = row.getElementsByTagName("td");
@@ -159,12 +204,18 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 				if (nSubmissions > 0) {
 					let identifier = allEntries[getIDColumn()].innerHTML;
 					let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-					students_interval.push([surname, name, identifier, url]);
+					let grade = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
+					if (grade === "") {
+						non_marked_students.push([surname, name, identifier, url]);
+					} else {
+						marked_students.push([surname, name, identifier, url, grade]);
+					}
 				}
 			}
 		}
 	}
-	return students_interval;
+
+	return [non_marked_students, marked_students];
 }
 
 function getDownloadFileName(student_id, surname, name, naming_code) {

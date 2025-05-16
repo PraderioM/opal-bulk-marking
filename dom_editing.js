@@ -334,7 +334,13 @@ function createStudentsDropdown(dropdown_id, instruction) {
 
 	dropdown.options.add( new Option(instruction,"select", true, true) );
 
-	for (let student of getStudentsInterval()) {
+    // We need to join both lists of students before showing anything. WARNING, the format of both lists is slightly different.
+	let all_students_intervals = getStudentsInterval();
+	let non_marked_students = all_students_intervals[0];
+	let marked_students = all_students_intervals[1];
+	let allStudents = marked_students.concat(non_marked_students);
+
+	for (let student of allStudents) {
 		let option = new Option(student[0] + " " + student[1], [student[0], student[1]]);
 		dropdown.options.add(option);
 	}

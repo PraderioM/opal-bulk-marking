@@ -145,6 +145,11 @@ function getSubmissionNumberText() {
 	return getLanguageDependentText("vorlage", "submission");
 }
 
+function getConfirmDownloadMarkedText() {
+	return getLanguageDependentText("Die folgende Studierende haben bereits ein Korrektur ernhalten. Möchten Sie deren Nachbereitungen trotzdem herunterladen?",
+		"The folllowing students have already been marked. Do you wish to download their submissions nonetheless?");
+}
+
 
 //*************************************************//
 // BULK UPLOAD REGION.
