@@ -150,6 +150,14 @@ function getConfirmDownloadMarkedText() {
 		"The folllowing students have already been marked. Do you wish to download their submissions nonetheless?");
 }
 
+function getDownloadAllButtonValue() {
+	return getLanguageDependentText("Alles herunterladen", "Download all");
+}
+
+function getDownloadNonMarkedButtonValue() {
+	return getLanguageDependentText("Non korrigiert herunterladen", "Download non marked");
+}
+
 
 //*************************************************//
 // BULK UPLOAD REGION.
@@ -179,8 +187,8 @@ function getMarkedPDFName() {
 }
 
 function getUnrecognizedFormatText() {
-	return getLanguageDependentText("Ich konnte das Heißungsformat den nächsten Dateien nicht erkannen.\nBitte achten, dass das Heißungsformat '<nächname>_<vorname>_<note>' oder '<matrikelnummer>_<note>' ist.\nHier <note> muss bei dem form '<ganzzahlen>_<dezimalzahlen>' oder einfachtlich '<ganzzahlen>' sein:",
-		"The following files are in an unrecognized format.\nPlease make sure your files are either in the format '<student_surname>_<student_name>_<grade>' or in the format '<student_id>_<grade>'.\nHere <grade> should be in the format '<integer>_<decimals>' or simply '<integer>':");
+	return getLanguageDependentText("Ich konnte das Heißungsformat den nächsten Dateien nicht erkannen.\nBitte achten, dass das Heißungsformat '&lt;nächname&gt;_&lt;vorname&gt;_&lt;note&gt;' oder '&lt;matrikelnummer&gt;_&lt;note&gt;' ist.\nHier &lt;note&gt; muss bei dem form '&lt;ganzzahlen&gt;_&lt;dezimalzahlen&gt;' oder einfachtlich '&lt;ganzzahlen&gt;' sein:",
+		"The following files are in an unrecognized format.\nPlease make sure your files are either in the format '&lt;student_surname&gt;_&lt;student_name&gt;_&lt;grade&gt;' or in the format '&lt;student_id&gt;_&lt;grade&gt;'.\nHere &lt;grade&gt; should be in the format '&lt;integer&gt;_&lt;decimals&gt;' or simply '&lt;integer&gt;':");
 }
 
 
@@ -214,4 +222,43 @@ function getUploadStoppedText() {
 
 function getUploadSelectedButtonValue() {
 	return getLanguageDependentText("Hochladen anfangen", "Start upload");
+}
+
+function getDownloadAllButtonValue() {
+	return getLanguageDependentText("Alles herunterladen", "Download all");
+}
+
+function getDownloadNonMarkedButtonValue() {
+	return getLanguageDependentText("Non korrigiert herunterladen", "Download non marked");
+}
+
+function getAcceptUploadFailedButtonValue() {
+	return getLanguageDependentText("Shade", "Shame");
+}
+
+function getConfirmUploadButtonValue() {
+	return getLanguageDependentText("Bestätigen", "Confirm");
+}
+
+function getCancelUploadButtonValue() {
+	return getLanguageDependentText("Ablehnen", "Cancel");
+}
+
+
+
+//*************************************************//
+// UTILS REGION.
+//*************************************************//
+
+
+function getConfirmButtonValue() {
+	return getLanguageDependentText("Bestätigen", "Confirm");
+}
+
+function getCancelButtonValue() {
+	return getLanguageDependentText("Ablehnen", "Cancel");
+}
+
+function getOKButtonValue() {
+	return getLanguageDependentText("Akzeptieren", "Accept");
 }

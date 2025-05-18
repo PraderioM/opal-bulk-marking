@@ -1,5 +1,5 @@
 // This function returns a promise that is completed when all uploaded files have been uploaded and the students marked.
-function uploadSubmissions() {
+async function uploadSubmissions() {
 	// Temporarily disable the upload start button while we are setting up the progress bar
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
@@ -17,10 +17,10 @@ function uploadSubmissions() {
 	let non_matching_submissions_list = res[2];
 
 	// The function makes a promise to upload the first submission in a list, waits until it is completed and then proceeds to the next.
-	function recursiveUpload(outer_resolve) {
+	async function recursiveUpload(outer_resolve) {
 		if (matching_submissions_list.length === 0) {
 			// When this point is reached all grades have been uploaded and we can resolve the promise.
-			onUploadEnd(true);
+			await onUploadEnd(true);
 			return outer_resolve(0);
 		} else {
 			// Get one of the remaining submissions to upload and upload it. Then repeat the process.
@@ -40,20 +40,20 @@ function uploadSubmissions() {
 	}
 
 	// Ask user if the upload should proceed.
-	function upload(resolve) {
+	async function upload(resolve) {
 		// If some submissions where uploaded twice we stop the upload process and show a message with it.
-		if (!processDuplicateSubmissions(duplicate_submissions_list)) {
-			onUploadEnd(false);
+		if (!await processDuplicateSubmissions(duplicate_submissions_list)) {
+			await onUploadEnd(false);
 			return resolve(1);
 		}
 	
 		// If there are no duplicates we ask for confirmation before starting the upload process.
-		let start_upload = confirmUpload(matching_submissions_list, non_matching_submissions_list, wrong_format_files);
-		onUploadStart(n);
+		let start_upload = await confirmUpload(matching_submissions_list, non_matching_submissions_list, wrong_format_files);
 		if (start_upload) {
+			onUploadStart(n);
 			return recursiveUpload(resolve);
 		} else {
-			onUploadEnd(false);
+			await onUploadEnd(false);
 			return resolve(1);
 		}
 	}
@@ -68,7 +68,6 @@ function uploadMatchingSubmission(student_url, marked_submission) {
 
 	// this function loads the student page, then saves the grade and then uploads the student's submission
 	function upload(upload_resolve) {
-
 		// Once the stundent page is loaded we can save the grade, once that is done we upload the submission.
 		loadPage(student_url).then((student_page) => {
 			saveGrade(student_page, marked_submission.grade).then(() => {
@@ -283,74 +282,109 @@ function findStudentsInTable(marked_submissions_list) {
 // this function takes as input a list of  pairs of the form (student_link, marked_submission) corresponding to all those marked
 //     submissions that are detected at least twice. If the list is empty it returns true. Otherwise it shows an alert listing all
 //     students with duplicate submissions and returns false.
-function processDuplicateSubmissions(duplicate_submissions_list) {
+async function processDuplicateSubmissions(duplicate_submissions_list) {
 	if (duplicate_submissions_list.length === 0) {
 		return true;
 	}
 
-	let message = getDuplicateSubmissionText();
-//	let n = getMaxStudentFullNameLength(duplicate_submissions_list);
+	let message = "<span>" + getDuplicateSubmissionText() + "</span>";
+	message = message + "<table class=\"opal-bulk-borderless-table\">\n";
+	highlight_row = false;
+
 
 	for (let submission_info of duplicate_submissions_list) {
+		highlight_row = !highlight_row;
 		let submission = submission_info[1];
-//		let n_space = n - submission.student_surname.length - submission.student_name.length;
-//		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.student_id;
-		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + "\t" + submission.student_id;
-	}
+		message = message + "<tr>\n<td";
+		if (highlight_row) {
+			message = message + " class=\"opal-bulk-highlighted-cell\"";
+		}
+		message = message + ">" + submission.student_surname + ", " + submission.student_name + "</td>\n<td";
 
-	alert(message);
+		if (highlight_row) {
+			message = message + " class=\"opal-bulk-highlighted-cell\"";
+		}
+		message = message + ">" + submission.student_id + "</td>\n</tr>\n";
+	}
+	message = message + "</table>\n";
+
+	await customAlert(message);
 	return false;
 }
 
 
 // This function asks the user to confirm the marks to be uploaded.
-function confirmUpload(matching_submission_list, non_matching_submission_list, wrong_format_files) {
+async function confirmUpload(matching_submission_list, non_matching_submission_list, wrong_format_files) {
 	let message = "";
+	let highlight_row = false;
 
 	// Files in wrong format.
 	if (wrong_format_files.length !== 0) {
-		message = message  + getUnrecognizedFormatText();
+		message = message  + "<span>"+getUnrecognizedFormatText()+"</span>\n";
+		message = message + "<table class=\"opal-bulk-borderless-table\">\n";
+		highlight_row = false;
 		for (let file of wrong_format_files) {
-			message = message + "\n\t" + file.name;
+			highlight_row= !highlight_row;
+			message = message + "<tr><td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + file.name + "</td></tr>\n";
 		}
+		message = message + "</table>\n";
 	}
 
 	// Non matching submissions.
 	if (non_matching_submission_list.length !== 0) {
-		if (message !== "") { message = message + "\n\n"; }
-		message = message + getNonMatchingStudentsText();
+		message = message  + "<span>"+getNonMatchingStudentsText()+"</span>\n";
+		message = message + "<table class=\"opal-bulk-borderless-table\">\n";
+		highlight_row = false;
 		for (let submission of non_matching_submission_list) {
-			message = message + "\n\t" + submission.file_name;
+			highlight_row = !highlight_row;
+			message = message + "<tr><td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.file_name + "</td></tr>\n";
 		}
+		message = message + "</table>\n";
 	}
 
-	// matching submissions.
-	//   If matching submission doesn't exist.
-	if (message !== "") { message = message + "\n\n"; }
+	// If matching submission doesn't exist we return false.
 	if (matching_submission_list.length === 0) {
-		message = message + getNoFilesMatchedText();
-		alert(message);
+		message = message  + "<span>"+getNoFilesMatchedText()+"</span>";
+		await customAlert(message);
 		return false;
 	}
 	//   If matching submission exists.
-	message = message + getConfirmUploadText();
+	message = message + "<span>" + getConfirmUploadText() + "</span>\n";
 	message = message + getStudentsGradesMessage(matching_submission_list);
 
-	return confirm(message);
+	return await customConfirm(message);
 }
 
 // This function takes as input a list of submissions and returns a message containing the information regarding those 
 // submissions (i.e. student name and grade).
 function getStudentsGradesMessage(submission_list) {
-	let message = "";
-//	let n = getMaxStudentFullNameLength(submission_list);
+	let message = "<table class=\"opal-bulk-borderless-table\">\n";
+	let highlight_row = false;
 	
 	for (let submission_info of submission_list) {
+		highlight_row = !highlight_row;
 		let submission = submission_info[1];
-//		let n_space = n - submission.student_surname.length - submission.student_name.length;
-//		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + " ".repeat(n_space) + submission.grade;
-		message = message + "\n\t" + submission.student_surname + ", " + submission.student_name + "\t" + submission.grade;
+
+		message = message + "<tr>\n<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.student_surname + ", " + submission.student_name + "</td>\n";
+			message = message + "<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.grade + "</td>\n</tr>\n";
 	}
+	message = message + "</table>\n";
 
 	return message;
 }
@@ -385,20 +419,6 @@ function processGradeString(str) {
 	}
 
 	return null;
-}
-
-// This function takes as input a list of pairs of the form (student_link, marked_submission) and an integer called "padding" (defaults to 6).
-// It then iterates over all the pairs and determines the maximum number of character that student name and student surname
-// add up to. It then return that value plus the padding.
-function getMaxStudentFullNameLength(submissions_list, padding = 6) {
-	let n = 0;
-
-	for (let submission_info of submissions_list) {
-		let submission = submission_info[1];
-		let m = submission.student_name.length + submission.student_surname.length;
-		if (m > n){ n = m; }
-	}
-	return n + padding;
 }
 
 
@@ -475,8 +495,8 @@ function onUploadProgress(i, n) {
 }
 
 // This function makes all operations needed when file download ends.
-function onUploadEnd(completed = true) {
-	alert(completed ? getUploadCompletedText() : getUploadStoppedText());
+async function onUploadEnd(completed = true) {
+	await customAlert(completed ? getUploadCompletedText() : getUploadStoppedText());
 
 	setBulkUploadHeader();
 }

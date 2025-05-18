@@ -1,6 +1,27 @@
+.opal-bulk-dialog { 
+    position: absolute;
+    max-width: 300pt;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.opal-bulk-spaced-container { 
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.opal-bulk-borderless-table {
+    border: none;
+}
+
+.opal-bulk-highlighted-cell {
+    background: #ccc;
+}
+
 .opal-bulk-label {
-  padding-right: 10px;
-  font-size: 1rem;
+    padding-right: 10px;
+    font-size: 1rem;
 }
 
 .opal-bulk-progress {

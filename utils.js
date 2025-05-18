@@ -151,3 +151,106 @@ function getGradeColumn() {
 function isTablePage() {
 	return (getSurnameColumn() !== -1) && (getNameColumn() !== -1) && (getIDColumn() !== -1) && (getNSubmissionsColumn() !== -1 && (getGradeColumn() !== -1));
 }
+
+
+// This functions takes as input HTML code and a string and shows the HTML in a dialog box that mimics the alert function.
+// The button used to close the box shows the value of the string. If this value is an empty string then the default 
+// getOKButtonValue() is used.
+function customAlert(message, accept_text = "") {
+	if (accept_text === "") {
+		accept_text = getOKButtonValue();
+	}
+	
+	function showDialog(resolve) {
+		let header = getHeader();
+		let dialog = document.createElement("dialog");
+		dialog.setAttribute("class", "opal-bulk-dialog");
+		header.appendChild(dialog);
+		dialog.innerHTML = message;
+
+		// Add a button used to close the dialog.
+		let button_container = document.createElement("span");
+		button_container.setAttribute("class", "opal-bulk-spaced-container");
+		dialog.appendChild(button_container);
+
+		let close_button = document.createElement("button");
+		close_button.innerHTML = accept_text;
+		close_button.addEventListener("click", () => {
+			dialog.close();
+		});
+		button_container.appendChild(close_button);
+
+		// After closing we delete the dialog and resolve the promise.
+		dialog.onclose = () => {
+			dialog.remove();
+			resolve(true);
+		};
+
+		// Display the dialog.
+		dialog.showModal();
+	}
+
+	return new Promise(showDialog);
+}
+
+
+// This functions takes as input HTML code and two string "confirm_text" and "cancel_text" and the HTML in a dialog box that
+// mimics the custom function. The two buttons to accept or reject the displayed message take values from the corresponding
+// texts. If these values are empty string then the defaults getConfirmButtonValue() and getCancelButtonValue are used.
+function customConfirm(message, confirm_text = "", cancel_text = "") {
+	if (confirm_text === "") {
+		confirm_text = getConfirmButtonValue();
+	}
+	if (cancel_text === "") {
+		cancel_text = getCancelButtonValue();
+	}
+
+	function showDialog(resolve) {
+		let header = getHeader();
+		let dialog = document.createElement("dialog");
+		dialog.setAttribute("class", "opal-bulk-dialog");
+		header.appendChild(dialog);
+		dialog.innerHTML = message;
+
+		// Add buttons to accept or refuse the message displayed in the code.
+		let button_container = document.createElement("span");
+		button_container.setAttribute("class", "opal-bulk-spaced-container");
+		dialog.appendChild(button_container);
+
+		let button_clicked = false;
+
+		// When message is accepted we resolve the promise positively and delete the dialog.
+		let confirm_button = document.createElement("button");
+		confirm_button.innerHTML = confirm_text;
+		confirm_button.addEventListener("click", () => {
+			button_clicked = true;
+			dialog.close();
+			dialog.remove();
+			resolve(true);
+		});
+		button_container.appendChild(confirm_button);
+
+		// When message is rejected we resolve the promise negatively and delete the dialog.
+		let cancel_button = document.createElement("button");
+		cancel_button.innerHTML = cancel_text;
+		cancel_button.addEventListener("click", () => {
+			button_clicked = true;
+			dialog.close();
+			dialog.remove();
+			resolve(false);
+		});
+		button_container.appendChild(cancel_button);
+
+		// If no button is pressed but the dialog is closed in a different way we act as if it was rejected.
+		dialog.onclose = () => {
+			if (!button_clicked) { 
+				dialog.remove();
+				resolve(false);
+			}
+		};
+
+		dialog.showModal();
+	}
+
+	return new Promise(showDialog);
+}

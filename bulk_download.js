@@ -1,6 +1,6 @@
 // This function gets links to the submission pages of each of the students and downloads the submissions one by one.
 // While downloading the download submission range button is disabled and its text replaced by a processing message.
-function downloadSubmissionsRange() {
+async function downloadSubmissionsRange() {
 	// We temporarily disable the download submissions button and show that the downloads are being processed.
 	let button = getStartDownloadButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
@@ -8,12 +8,12 @@ function downloadSubmissionsRange() {
 
 	// Getting first, last student and naming convention and then obtaining all information relative to the requested list of students.
 	// We will then iterate over this resulting list.
-	let start_student = getSelectedStudent(getStartDropDownId(), ["A", "Zzzz"]);
-	let end_student = getSelectedStudent(getEndDropDownId(), ["Zzzz", "A"]);
+	let start_student = getSelectedStudent(getStartDropDownId(), ["", ""]);
+	let end_student = getSelectedStudent(getEndDropDownId(), ["", ""]);
 	let file_naming_code = getFileNamingCode();
 
 	let all_students_intervals = getStudentsInterval(start_student, end_student);
-	let students_interval = preProcessStudentIntervals(all_students_intervals[0], all_students_intervals[1])
+	let students_interval = await preProcessStudentIntervals(all_students_intervals[0], all_students_intervals[1]);
 	let n = students_interval.length;
 
 	// We prepare the progressbar for downloading.
@@ -134,48 +134,69 @@ function getSelectedStudent(dropdown_id, default_value) {
 
 
 // This function takes as input two list one of non marked students and the other of marked students
-// (see "getStudentsInterval" for a description on the format) and returns a single list with the same format as
-// the non marked students list that corresponds to all the students whose submissions should be downloaded.
+// (see "getStudentsInterval" for a description on the format) and returns a single list with the same
+// format as the non marked students list that corresponds to all the students whose submissions should be downloaded.
 // The function asks the user for confirmation as to what should be downloaded if necessary.
 // WARNING the function modfies the "non_marked_students" list and make it into the output.
-function preProcessStudentIntervals(non_marked_students, marked_students) {
-	console.log(non_marked_students);
-	console.log(marked_students);
-	
+async function preProcessStudentIntervals(non_marked_students, marked_students) {
+
 	if (marked_students.length === 0) {
 		return non_marked_students;
 	}
 
 	// If the user confirms they want to download all students intervals then we add the markedd students intervals
 	// to the non marked ones and later return those.
-	if (confirmDownloadMarked(marked_students)) {
+	if (await confirmDownloadMarked(marked_students)) {
 		for (let student_data of marked_students) {
 			// We need to change the format of marked students data in order to match the one of non marked students data.
 			non_marked_students.push(student_data.slice(0,4));
 		}
+		return non_marked_students;
+	} else {
+		return non_marked_students;
 	}
-	return non_marked_students;
 }
 
 // This funtion takes as input a list of marked students (see "getStudentsInterval" for a description on the format) and
 // asks the user if they wish to download them of not. It then returns true if they answer yes and false otherwise.
 function confirmDownloadMarked(marked_students) {
-	message = getConfirmDownloadMarkedText();
-	for (let student_data of marked_students) {
+	let message = "<span>" + getConfirmDownloadMarkedText() + "</span>\n";
+	message = message + "<table class=\"opal-bulk-borderless-table\">\n";
+
+	let highlight = false;
+
+	// Add all rows with alternating colors in order to make identification easier.
+	for (let student_data of marked_students) {			
+		highlight = !highlight;
+
+		// Cell for name and surname.
 		let surname = student_data[0];
 		let name = student_data[1];
-		let grade = student_data[4];
-		message = message + "\n\t" + surname + ", " + name + "\t" + grade;
-	}
+		message = message + "<tr>\n<td";
+		if (highlight) {
+			message = message + " class=\"opal-bulk-highlighted-cell\"";
+		}
+		message = message + ">" + surname + ", " + name + "</td>\n";
 
-	return confirm(message);
+		// Cell for grade.
+		let grade = student_data[4];
+		message = message + "<td";
+		if (highlight) {
+			message = message + " class=\"opal-bulk-highlighted-cell\"";
+		}
+		message = message + ">" + grade + "</td>\n</tr>\n";
+	}
+	message = message + "</table>\n"
+
+	return customConfirm(message, getDownloadAllButtonValue(), getDownloadNonMarkedButtonValue());
 }
 
-// This function takes as input the Surname and name of two sets of students and returns two lists.
+// This function takes as input the Surname and name of two sets of students and returns thre lists.
 // The first list contains quadruples of the form (surname, name, student_id, student_page_link) and corresponds to students
 // whose submission has not yet been marked. The second list contains quintuples of the form 
 // (surname, name, student_id, student_page_link, grade) and corresponds to students whose sumbissions have already been marked.
-function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
+// The third list has the same format as the first but contains all students.
+function getStudentsInterval(start=["", ""], end=["", ""]) {
 	start[0] = sanitize_name(start[0]);
 	start[1] = sanitize_name(start[1]);
 	end[0] = sanitize_name(end[0]);
@@ -187,6 +208,9 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 
 	let non_marked_students = [];
 	let marked_students = [];
+	let all_students = [];
+
+	let interval_start = false;
 
 	for (let row of tableBody.getElementsByTagName("tr")) {
 		let allEntries = row.getElementsByTagName("td");
@@ -196,26 +220,35 @@ function getStudentsInterval(start=["A", "Zzzz"], end=["Zzzz", "A"]) {
 		let url = link.href;
 		let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
 		let sane_name = sanitize_name(name);
-		
-		// The students are ordered first in alphabetical order by surame and then in alphabetical order by name.
-		if (start[0] < sane_surname || (start[0] == sane_surname && start[1] <= sane_name)) {
-			if (sane_surname < end[0] || (sane_surname == end[0] && sane_name <= end[1])) {
-				let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
-				if (nSubmissions > 0) {
-					let identifier = allEntries[getIDColumn()].innerHTML;
-					let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-					let grade = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
-					if (grade === "") {
-						non_marked_students.push([surname, name, identifier, url]);
-					} else {
-						marked_students.push([surname, name, identifier, url, grade]);
-					}
+
+		// If the first student is matched or is the default then we set interval to start.
+		if ((start[0] === "" && start[1] === "") || (start[0] === sane_surname && start[1] === sane_name)) {
+			interval_start = true;
+		}
+
+		// Download all students in the interval.
+		if (interval_start) {
+			let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
+			if (nSubmissions > 0) {
+				let identifier = allEntries[getIDColumn()].innerHTML;
+				name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
+				let grade = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
+				if (grade === "") {
+					non_marked_students.push([surname, name, identifier, url]);
+				} else {
+					marked_students.push([surname, name, identifier, url, grade]);
 				}
+				all_students.push([surname, name, identifier, url]);
 			}
+		}
+
+		// If the interval is finished then we break out of the loop.
+		if (sane_surname === end[0] && sane_name <= end[1]) {
+			break;
 		}
 	}
 
-	return [non_marked_students, marked_students];
+	return [non_marked_students, marked_students, all_students];
 }
 
 function getDownloadFileName(student_id, surname, name, naming_code) {
@@ -245,7 +278,7 @@ function onDownloadProgress(i, n) {
 
 // This function makes all operations needed when file download ends.
 function onDownloadEnd() {
-	alert(getDownloadCompletedText());
+	customAlert(getDownloadCompletedText());
 	setBulkDownloadHeader();
 }
 
