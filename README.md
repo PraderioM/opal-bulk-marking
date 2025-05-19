@@ -1,9 +1,9 @@
-# OPAL-BULK-MARKING 0.8 (beta)
+# OPAL-BULK-MARKING 0.9 (beta)
 
 Opal-bullk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
 ## Disclaimer
-Opal-bulk-marking is stil on its early stages of development and was only tested in the context of the [TU Dresden opal page](https://bildungsportal.sachsen.de/opal/). Even in this case, due to lack of access to some functions from Opal, it was not possible to run extensive tests on the upload process and the user is advised to double check this process. At least during their first uses of opal-bulk-marking.
+Opal-bulk-marking is stil on its early stages of development and was only tested in the context of the [TU Dresden opal page](https://bildungsportal.sachsen.de/opal/).
 
 Opal-bulk-marking is designed to work on a Firefox browser and will not work on any other browser.
 
@@ -40,17 +40,23 @@ If you press on the 'Download submissions' button appearing in the [main page](#
 
 ![dowload](https://github.com/PraderioM/opal-bulk-marking/blob/main/images/download.png?raw=true)
 
-These buttons and dropdowns have the following functions:
+These buttons, text inputs and checkboxes have the following functions:
 
 * **first student**: Allows you to select the first student of the range of students whose submissions you wish to download. If left blank the first available student will be selected automatically. Only students with exactly one submission are considered.
 * **last student**: Allows you to select the last student of the range of students whose submissions you wish to download. If left blank the last available student will be selected automatically. Only students with exactly one submission are considered.
-* **name submission as**: Allows you to specify how you want the download submission to be named. There are two possible naming conventions:
-    * *\<student_id>.pdf*: The downloaded submissions will be named after the student id.
-    * *\<surname>\_\<name>.pdf*: The downloaded submissions will be named after the surname and name of the student.
-* **Start download**: Dowloads the submissions from all students in the specified range whom have submitted AT LEAST ONE file. Submissions are stored following the specified naming convention.
+* **prefix**: Allows you to specify a custom input that will be added at the start of all downloaded submissions. If no prefix is specified no prefix will be added. Before being added to the name of the downloaded file this prefix will be modified in the following way in order to prevent potential crashes:
+    * The all capital letters will be converted to lowercase.
+    * All accented vowels will be replaced by their non accented counterparts and the letters "ß" and "ñ" will be replaced by "ss" and "n" respectively.
+    * All remaining symbols other than letters, numbers and the punctuation signs ".", ","  and "-" will be removed.
+* **Add student name**: If selected (default) the downloaded files will be in the format "\<prefix>\_\<surname>\_\<name>\_\<student_id>\.pdf" (or "\<surname>\_\<name>\_\<student_id>\.pdf" if no prefix is specified). If not selected the downloaded files will be in the format "\<prefix>\_\<student_id>\.pdf" (or "\<student_id>\.pdf" if no prefix is specified).
+* **Start download**: Dowloads the submissions from all students in the specified range whom have submitted AT LEAST ONE file. Submissions are stored following the specified naming convention. A progressbar will appear on screen showing the download progress.
 * **Help**: Shows a pop up with minimal instructions on how to use the bulk download function of opal-bulk-marking.
 * **Back**: Goes back to the [main page](#subsec_main).
 
+
+**NOTE**: Before starting the download opal-bulk-marking will let you know if any of the submissions you are intending to download have already beenmarked and give you the option of not downloading those.
+
+**NOTE**: In the case of a student submitting multiple files opal-bulk-marking will download all of them and add the suffix "\_submission\_\<submission_number>".
 
 **IMPORTANT**: Before starting the download make sure your Firefox browser is configured as described in Section [Configuration](#sec_configuration).
 
@@ -62,13 +68,17 @@ If you press on the 'Upload marking' button appearing in the [main page](#subsec
 
 These buttons and selectables have the following functions:
 
-* **selectable**: Allows you to select all marked submissions that you wish to upload to Opal. These submissions should be named either as '\<student_id>\_\<grade>.pdf' or as '\<surname>\_\<name>\_\<grade>.pdf'. Notice how file names following these conventions can be obtained by adding the suffix '\_\<grade>' at the end of the files downloaded using the [bulk download function](#subsec_download). Here '\<grade>' represents the grade assigned to the submission and can be written using either of the following 2 conventions:
+* **selectable**: Allows you to select all marked submissions that you wish to upload to Opal. These submissions should be named as '\<arbitrary_text>\_\<student_id>\_\<grade>.pdf'. Notice how file names following this conventions can be obtained by adding the suffix '\_\<grade>' at the end of the files downloaded using the [bulk download function](#subsec_download). Here '\<grade>' represents the grade assigned to the submission and can be written using either of the following 2 conventions:
     * *\<integer>*: A positive integer representing the grade. For example the grade '7.0' would be written simply as '7' using this convention.
-    * *\<integer>_\<decimals>*: A positive integer representing the integer part of a number followed by an underscore followed by a positive integer representing the decimal part of a number. For example the grade '7.5' can be written as '7_4' using this convention.
-* **Start upload**: Starts the uploading of all selected files. More precisely opal-bulk-marking will use the name of each of the selected files in order to obtain a grade and a student. It will then look for that student in the list of all available students and upload the marked submission (renamed to 'marked_submission.pdf') to its page. While doing so it will also store in the student's page the grade associated to this submission. Before starting the upload process opal-bulk-marking will show you a pop-up listing any error it might encounter (i.e. unrecognized naming conventions or non found students) and showing you the list of all students and grades that it successfully identified. The upload process will start only after you confirm the showed grades are the ones you want to upload.
+    * *\<integer>.\<decimals>*: A positive integer representing the integer part of a number followed by a dot followed by a positive integer representing the decimal part of a number. For example the grade '7.4' can be written as '7.4' using this convention.
+* **Start upload**: Starts the uploading of all selected files. More precisely opal-bulk-marking will use the name of each of the selected files in order to obtain a grade and a student. It will then look for that student in the list of all available students and upload the marked submission (renamed to 'korrektur.pdf') to its page. While doing so it will also store in the student's page the grade associated to this submission. Before starting the upload process opal-bulk-marking will show you a pop-up listing any error it might encounter (i.e. unrecognized naming conventions or non found students) and showing you the list of all students and grades that it successfully identified. The upload process will start only after you confirm the showed grades are the ones you want to upload.  A progressbar will appear on screen showing the upload progress.
 * **Help**: Shows a pop up with minimal instructions on how to use the bulk upload function of opal-bulk-marking.
 * **Back**: Goes back to the [main page](#subsec_main).
 
+
+**NOTE**: In the case of attempting to upload muliple files associated to the same student opal-bulk-marking will detect the error and halt the uploadprocess.
+
+**IMPORTANT**: In the case of attempting to upload a file associated to a student that has already been marked opal-bulk-marking will overwrite the grade of the student and attempt to upload the new corrections file. This upload will NOT succeed in replacing already existing files if these files are named "korrektur.pdf".
 
 ## Requirements
 * Firefox browser.
