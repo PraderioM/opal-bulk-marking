@@ -78,7 +78,10 @@ function setBulkDownloadHeader() {
 					header.appendChild(getStudentsDropdown(getEndDropDownId(), getLastStudentText()));
 					header.appendChild(createEmptySpan());
 
-					header.appendChild(getDownloadFileNameDropdown());
+					header.appendChild(getFileNamePrefix());
+					header.appendChild(createEmptySpan());
+
+					header.appendChild(getAddNameCheckboxContainer());
 					header.appendChild(createEmptySpan());
 
 					header.appendChild(getStartDownloadButton());
@@ -136,7 +139,7 @@ function setBulkUploadHeader() {
 					header.appendChild(getUploadSelectedButton())
 					header.appendChild(createEmptySpan());
 
-					header.appendChild(getDownloadInformationButton());
+					header.appendChild(getUploadInformationButton());
 					header.appendChild(createEmptySpan());
 
 					header.appendChild(getBackButton());
@@ -156,7 +159,7 @@ function setBulkUploadProgress(n) {
 			(resolve) => {
 				getMainForm().prepend(header);
 
-				header.appendChild(getUploadProgressLabel());
+				header.appendChild(getUploadProgressLabel(n));
 				header.appendChild(getUploadProgressBar(n));
 
 				MODIFYING_PAGE = false;
@@ -345,26 +348,39 @@ function createStudentsDropdown(dropdown_id, instruction) {
 	return dropdown;
 }
 
-function getDownloadFileNameDropdown() {
-	return getElement(getDownloadFileNameDropdownId(), createDownloadFileNameDropdown);
+function getFileNamePrefix() {
+	return getElement(getFileNamePrefixId(), createFileNamePrefix);
 }
 
-function createDownloadFileNameDropdown() {
+function createFileNamePrefix() {
+	let input = document.createElement("input");
+	input.setAttribute("type", "text");
+	input.setAttribute("id", getFileNamePrefixId());
+	input.setAttribute("placeholder", getPrefixPlaceholderText());
+	input.setAttribute("class", "opal-bulk-text-input");
+
+	return input;
+}
+
+function getAddNameCheckboxContainer() {
+	return getElement(getAddNameCheckboxContainerId(), createAddNameCheckboxContainer);
+}
+
+function createAddNameCheckboxContainer() {
 	let container = document.createElement("span");
-	container.setAttribute("class", "opal-bulk-dropdown-container");
+	container.setAttribute("class", "opal-bulk-labeled-text-container");
 
-	let message = document.createElement("span");
-	message.innerHTML = getSubmissionNamingText();
+	let label = document.createElement("label");
+	label.setAttribute("for", getAddNameCheckboxId());
+	label.innerHTML = getAddNameLabelText();
 	
-	let dropdown = document.createElement("select");
-	dropdown.setAttribute("id", getDownloadFileNameDropdownId());
-	dropdown.setAttribute("class", "opal-bulk-dropdown");
+	let checkbox = document.createElement("input");
+	checkbox.setAttribute("type", "checkbox");
+	checkbox.setAttribute("id", getAddNameCheckboxId());
+	checkbox.checked = true;
 
-	dropdown.options.add( new Option(getStudentSurnameNamingFormatText(),"surname_name", true, true));
-	dropdown.options.add( new Option(getStudentIdNamingFormatText(),"student_id"));
-
-	container.appendChild(message);
-	container.appendChild(dropdown);
+	container.appendChild(label);
+	container.appendChild(checkbox);
 
 	return container;
 }

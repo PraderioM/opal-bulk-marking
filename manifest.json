@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "opal-bulk-marking",
-    "version": "0.8",
+    "version": "0.9",
 
     "description": "Adds buttons in Opal that allow bulk downloading of submissions and bulk upload of corrections and marks.",
 

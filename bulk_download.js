@@ -10,7 +10,8 @@ async function downloadSubmissionsRange() {
 	// We will then iterate over this resulting list.
 	let start_student = getSelectedStudent(getStartDropDownId(), ["", ""]);
 	let end_student = getSelectedStudent(getEndDropDownId(), ["", ""]);
-	let file_naming_code = getFileNamingCode();
+	let file_name_prefix = getChosenFileNamePrefix();
+	let add_student_name = getAddStudentName();
 
 	let all_students_intervals = getStudentsInterval(start_student, end_student);
 	let students_interval = await preProcessStudentIntervals(all_students_intervals[0], all_students_intervals[1]);
@@ -32,7 +33,7 @@ async function downloadSubmissionsRange() {
 			let student_name = student_data[1];
 			let student_id = student_data[2];
 			let student_url = student_data[3];
-			let download_file_name = getDownloadFileName(student_id, student_surname, student_name, file_naming_code);
+			let download_file_name = getDownloadFileName(student_id, student_surname, student_name, file_name_prefix, add_student_name);
 
 			return downloadStudentSubmission(student_url, download_file_name).then(
 				() => {
@@ -119,9 +120,14 @@ function downloadStudentSubmission(student_url, file_name) {
 	return new Promise(download);
 }
 
-function getFileNamingCode() {
-	let dropdown = document.getElementById(getDownloadFileNameDropdownId());
-	return dropdown.selectedIndex;
+function getChosenFileNamePrefix() {
+	let input = document.getElementById(getFileNamePrefixId());
+	return sanitize_input(input.value);
+}
+
+function getAddStudentName() {
+	let checkbox = document.getElementById(getAddNameCheckboxId());
+	return checkbox.checked;
 }
 
 function getSelectedStudent(dropdown_id, default_value) {
@@ -251,14 +257,19 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 	return [non_marked_students, marked_students, all_students];
 }
 
-function getDownloadFileName(student_id, surname, name, naming_code) {
-	if (naming_code === 0) {
-		return surname+"_"+name+".pdf";
-	} else if (naming_code === 1) {
-		return student_id+".pdf";
-	} else {
-		throw new Error(getUnrecognizedNamingText() + naming_code);
+function getDownloadFileName(student_id, surname, name, file_name_prefix, add_student_name) {
+	let output = "";
+
+	if (file_name_prefix !== "") {
+		output = output + file_name_prefix + "_";
 	}
+
+	if (add_student_name) {
+		output = output + surname + "_" + name + "_";
+	}
+
+	output = output + student_id + ".pdf";
+	return output;
 }
 
 
@@ -315,4 +326,19 @@ function sanitize_name(str) {
 	out_str = out_str.replaceAll("û", "u");
 
 	return out_str;
+}
+
+
+function sanitize_input(str) {
+	let pre_processed_str = sanitize_name(str);
+	let output = "";
+
+	// Only the letters in the english alphabet, numbers and the symbols ".", "," and "-" are allowed in the input. We remove everything else.
+	for (let char of pre_processed_str) {
+		if (char.match(/[a-z0-9.,-]/i) !== null) {
+			output = output + char;
+		}
+	}
+
+	return output;
 }

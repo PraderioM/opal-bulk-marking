@@ -109,8 +109,8 @@ function getSubmissionNamingText() {
 
 
 function getDownloadInformationText() {
-	return getLanguageDependentText("Über die ersten beiden Dropdown-Menüs können Sie Studenten auswählen, die mindestens ein Dokument eingereicht haben. Über das dritte Dropdown-Menü können Sie das Benennungsformat für die heruntergeladenen Dokumente auswählen.\nDanach können Sie die Schaltfläche '"+getStartDownloadButtonValue()+"' klicken, um die Herunterladen aller Einreichungen von den Studenten, die zwischen die beiden ausgewählt Studenten sind, starten.\nDiese Einreichungen werden im gewählten Benennugsformat auf Ihrem Computer gespeichert.\nACHTUNG: Damit dieses Add-on ordnungsgemäß funktionert, müssen Sie zunächst die Kontrollkästchen 'Jedes Mal nachfragen, wo eine Datei gespeichert werden soll' unter 'Dateien und Anwendungen' in Ihrem firefox Einstellungen Seite deaktivieren.",
-		"Use the first two dropdowns to select two students from the list of all students that have one available submission and use the third dropdown in order to choose a file naming format.\nAfter doing so you can press on the button '"+getStartDownloadButtonValue()+"' in order to download the submissions of all students whose name is alfabetically between the first and last selected student.\nThese submissions will be saved to your computer under the specified format.\nIMPORTANT: In order for the add-on to work properly you need to deactivate the checkbox 'always ask where to store files' under the section 'downloads and apps' in the 'setting' of your firefox browser.");
+	return getLanguageDependentText("Über die ersten beiden Dropdown-Menüs können Sie Studenten auswählen, die mindestens ein Dokument eingereicht haben.\nSie konnen durch das Eingabefeldein prefix ein Prefix für die heruntergeladenen dokumente schreiben. Nur Buchstabe sind für diesen Prefix darft.\nSie konnen durch das Kontrollkästchen die Namen der Studenten in dem Name der heruntergeladenen Dokumente hinzufüngen.\nDanach können Sie die Schaltfläche '"+getStartDownloadButtonValue()+"' klicken, um die Herunterladen aller Einreichungen von den Studenten, die zwischen die beiden ausgewählt Studenten sind, starten.\nDiese Einreichungen werden im gewählten Benennugsformat auf Ihrem Computer gespeichert.\nACHTUNG: Damit dieses Add-on ordnungsgemäß funktionert, müssen Sie zunächst die Kontrollkästchen 'Jedes Mal nachfragen, wo eine Datei gespeichert werden soll' unter 'Dateien und Anwendungen' in Ihrem firefox Einstellungen Seite deaktivieren.",
+		"Use the first two dropdowns to select two students from the list of all students that have one available submission.\nUse the text input field in order to write any prefix you want to appear in the names of downloaded files.\nUse the checkbox to decide wether or the student's name should appear in the names of the downloaded files.\nAfter doing so you can press on the button '"+getStartDownloadButtonValue()+"' in order to download the submissions of all students whose name is alfabetically between the first and last selected student.\nThese submissions will be saved to your computer under the specified format.\nIMPORTANT: In order for the add-on to work properly you need to deactivate the checkbox 'always ask where to store files' under the section 'downloads and apps' in the 'setting' of your firefox browser.");
 }
 
 function getUnrecognizedNamingText() {
@@ -129,16 +129,12 @@ function getStartDownloadButtonValue() {
 	return getLanguageDependentText("Herunterladen anfangen", "Start download");
 }
 
-function getStudentIdNamingFormatText() {
-	if (isLanguageGerman()) {
-		return "<matrikelnummer>.pdf";
-	} else {
-		return "<student id>.pdf";
-	}
+function getPrefixPlaceholderText() {
+	return getLanguageDependentText("Präfix ", "prefix ");
 }
 
-function getStudentSurnameNamingFormatText() {
-	return getLanguageDependentText("<nachname>_<vorname>.pdf", "<surname>_<name>.pdf");
+function getAddNameLabelText() {
+	return getLanguageDependentText("Studenten Name hinzufügen ", "Add student name ");
 }
 
 function getSubmissionNumberText() {
@@ -165,8 +161,8 @@ function getDownloadNonMarkedButtonValue() {
 
 
 function getUploadInformationText() {
-	return getLanguageDependentText("Zum Hochladen der Korrekturen müssen Sie diese entweder als '<Matrikelnummer>_<Note>.pdf' oder als '<Nachname>_<Vorname>_<Note>.pdf' benennen.\nHier muss die '<Note>' als '<Ganzzahlen>_<Dezimalzahlen>' oder als '<Ganzzahlen>' geschrieben werden.\nBeachten Sie, dass diese Benennugsformate so ähnlich wie die heruntergeladenen sind. Mann muss nur '_<Note>' zum Namen der heruntergeladenen Dateien hinzufügen.\nVor dem Hochladen werden Sie gebeten, die Noten zu überprüfen, die dann gespeichert werden.\nWährend des Speichervorgangs, wird die Seite viele Male aktualisiert. Das ist normal. Das Add-on muss das tun, um alle Noten zu speichern.\nWenn Sie das Hochladen anhalten wollen, können Sie die Seite einfach schließen.\nWenn Sie sich dazu entschließen, werden Sie beim nächsten Öffnen von Opal gefragt, ob Sie mit dem Hochladen fortfahren möchten.\nBeachten Sie, dass die Korrekturen unter dem Namen '"+getMarkedPDFName()+"' gespeichert werden.",
-		"In order to upload the marked submissions make sure that they are named either as '<student id>_<grade>.pdf' or as '<surname>_<name>_<grade>.pdf'.\nHere '<grade>' should be written as '<integer>_<decimals>' or simply '<integer>'.\nNotice how these formats can be obtained by simply adding '_<grade>' at the end of the name of the files downloaded using this add-on.\nBefore starting the upload process you will be showed a prompt asking you to confirm the grades to be saved.\nDuring the upload process the page will be changing multiple times as it iterates over all the students whose submissions have been marked and uploads the results.\nYou can decide to stop the uploading process halfway through by simply closing the tab.\nIf you decide to do so you will then be asked if you wish to continue with the uploading process or halt it.\nNote that the marked files will all be uploaded under the name '"+getMarkedPDFName()+"'.");
+	return getLanguageDependentText("Zum Hochladen der Korrekturen müssen Sie diese entweder als '<Text>_<Matrikelnummer>_<Note>.pdf' oder als '<Matrikelnummer>_<Note>.pdf' benennen.\nHier muss die '<Note>' als '<Ganzzahlen>.<Dezimalzahlen>' oder als '<Ganzzahlen>' geschrieben werden.\nBeachten Sie, dass diese Benennugsformate so ähnlich wie die heruntergeladenen sind. Mann muss nur '_<Note>' zum Namen der heruntergeladenen Dateien hinzufügen.\nVor dem Hochladen werden Sie gebeten, die Noten zu überprüfen, die dann gespeichert werden.\nWährend des Speichervorgangs, wird die Seite viele Male aktualisiert. Das ist normal. Das Add-on muss das tun, um alle Noten zu speichern.\nWenn Sie das Hochladen anhalten wollen, können Sie die Seite einfach schließen.\nWenn Sie sich dazu entschließen, werden Sie beim nächsten Öffnen von Opal gefragt, ob Sie mit dem Hochladen fortfahren möchten.\nBeachten Sie, dass die Korrekturen unter dem Namen '"+getMarkedPDFName()+"' gespeichert werden.",
+		"In order to upload the marked submissions make sure that they are named either as '<text>_<student id>_<grade>.pdf' or as '<student_id>_<grade>.pdf'.\nHere '<grade>' should be written as '<integer>.<decimals>' or simply '<integer>'.\nNotice how these formats can be obtained by simply adding '_<grade>' at the end of the name of the files downloaded using this add-on.\nBefore starting the upload process you will be showed a prompt asking you to confirm the grades to be saved.\nDuring the upload process the page will be changing multiple times as it iterates over all the students whose submissions have been marked and uploads the results.\nYou can decide to stop the uploading process halfway through by simply closing the tab.\nIf you decide to do so you will then be asked if you wish to continue with the uploading process or halt it.\nNote that the marked files will all be uploaded under the name '"+getMarkedPDFName()+"'.");
 }
 
 function getDuplicateSubmissionText() {
@@ -187,8 +183,8 @@ function getMarkedPDFName() {
 }
 
 function getUnrecognizedFormatText() {
-	return getLanguageDependentText("Ich konnte das Heißungsformat den nächsten Dateien nicht erkannen.\nBitte achten, dass das Heißungsformat '&lt;nächname&gt;_&lt;vorname&gt;_&lt;note&gt;' oder '&lt;matrikelnummer&gt;_&lt;note&gt;' ist.\nHier &lt;note&gt; muss bei dem form '&lt;ganzzahlen&gt;_&lt;dezimalzahlen&gt;' oder einfachtlich '&lt;ganzzahlen&gt;' sein:",
-		"The following files are in an unrecognized format.\nPlease make sure your files are either in the format '&lt;student_surname&gt;_&lt;student_name&gt;_&lt;grade&gt;' or in the format '&lt;student_id&gt;_&lt;grade&gt;'.\nHere &lt;grade&gt; should be in the format '&lt;integer&gt;_&lt;decimals&gt;' or simply '&lt;integer&gt;':");
+	return getLanguageDependentText("Ich konnte das Heißungsformat den nächsten Dateien nicht erkannen.\nBitte achten, dass das Heißungsformat '&lt;nächname&gt;_&lt;vorname&gt;_&lt;note&gt;' oder '&lt;matrikelnummer&gt;_&lt;note&gt;' ist.\nHier &lt;note&gt; muss bei dem form '&lt;ganzzahlen&gt;.&lt;dezimalzahlen&gt;' oder einfachtlich '&lt;ganzzahlen&gt;' sein:",
+		"The following files are in an unrecognized format.\nPlease make sure your files are either in the format '&lt;student_surname&gt;_&lt;student_name&gt;_&lt;grade&gt;' or in the format '&lt;student_id&gt;_&lt;grade&gt;'.\nHere &lt;grade&gt; should be in the format '&lt;integer&gt;.&lt;decimals&gt;' or simply '&lt;integer&gt;':");
 }
 
 
@@ -234,14 +230,6 @@ function getDownloadNonMarkedButtonValue() {
 
 function getAcceptUploadFailedButtonValue() {
 	return getLanguageDependentText("Shade", "Shame");
-}
-
-function getConfirmUploadButtonValue() {
-	return getLanguageDependentText("Bestätigen", "Confirm");
-}
-
-function getCancelUploadButtonValue() {
-	return getLanguageDependentText("Ablehnen", "Cancel");
 }
 
 

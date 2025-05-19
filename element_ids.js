@@ -34,10 +34,17 @@ function getEndDropDownId() {
 	return "opal-bulk-end-dropdown";
 }
 
-function getDownloadFileNameDropdownId() {
-	return "opal-bulk-file-name-dropdown";
+function getFileNamePrefixId() {
+	return "opal-bulk-file-name-prefix";
 }
 
+function getAddNameCheckboxContainerId() {
+	return "opal-bulk-add-name-checkbox-container";
+}
+
+function getAddNameCheckboxId() {
+	return "opal-bulk-add-name-checkbox";
+}
 
 function getMainFormPrefix() {
 	return "tb_ms_";

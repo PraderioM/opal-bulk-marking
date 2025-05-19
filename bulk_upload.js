@@ -225,7 +225,7 @@ function preProcessFiles(file_list) {
 //     corresponds to all those marked submissions that we could find in the table visible in the present document.
 //   The second list contains pairs of the form (student_link, marked_submission) corresponding to all those marked
 //     submissions that are detected at least twice.
-//   The second list is a list of marked submissions containing all the marked submissions that could not be found. 
+//   The third list is a list of marked submissions containing all the marked submissions that could not be found. 
 // WARNING marked submissions that match get their data completed with the one found in the table.
 function findStudentsInTable(marked_submissions_list) {
 	let non_matching_submissions = [... marked_submissions_list];
@@ -251,12 +251,11 @@ function findStudentsInTable(marked_submissions_list) {
 		while (i < non_matching_submissions.length) {
 			let marked_submission = non_matching_submissions[i];
 			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non matching ones.
-			if ((marked_submission.student_name === student_name && marked_submission.student_surname === student_surname && student_name !== "" && student_surname !== "") || (marked_submission.student_id === student_id && student_id!=="")) {
+			if (marked_submission.student_id === student_id && student_id !== "") {
 
 				// We update the student info with the matching student
 				marked_submission.student_name = student_name;
 				marked_submission.student_surname = student_surname;
-				marked_submission.student_id = student_id;
 				if (!matching_student_found) {
 					matching_students.push([url, marked_submission]);
 					matching_student_found = true;
@@ -402,11 +401,11 @@ function isPositiveInteger(str) {
 	return false;
 }
 
-// This function takes as input a string and checks if it is on the format "<pos int 1>_<pos int 2>"
+// This function takes as input a string and checks if it is on the format "<pos int 1>.<pos int 2>"
 // or the format "<pos int>". In that case it returns the string "<pos int 1>.<pos int 2>" or "<pos int>"
 // respectively. Otherwise it returns null.
 function processGradeString(str) {
-	grade_parts = str.split("_");
+	grade_parts = str.split(".");
 
 	if (grade_parts.length === 1) {
 		if (isPositiveInteger(grade_parts[0])) {
@@ -438,42 +437,33 @@ function MarkedSubmission(file) {
 	// be no "."  in the file name. Otherwise there will be a single "." the file name and after it 
 	// there should only appear the letters "pdf".
 	let file_name_parts = file.name.split(".");
-	let file_extension = "pdf";
-	if (file_name_parts.length === 2) {
-		file_extension = file_name_parts[1];
-	} else if (file_name_parts > 2) {
-		file_extension = "";
-	}
+	let file_extension = file_name_parts[file_name_parts.length - 1];
 
 	if (file_extension === "pdf") {
-		let file_name = file_name_parts[0];
+		let file_name = file_name_parts.splice(0, file_name_parts.length - 1).join(".");
 		
-		// We only accept 2 naming conventions for file names.
-		// The first one is "<student_surname>_<student_name>_<grade>".
-		// The second one is "<student_id>_<grade>".
+		// We only accept 2 naming conventions for file names. 
+		// The first one is "<student_id>_<grade>".
+		// The second one is "<prefix>_<student_id>_<grade>".
 		// We process the file only if one of these two formats is met.
-		let name_parts = file_name.split("_");
-		if (isPositiveInteger(name_parts[0])) { // Here we are checking if the name is in the format "<student_id>_<grade>"
-			// Check if the grade is in the correct format. If not the function "processGradeString" will return null.
-			// Otherwise it will return a string that can be parsed to a float.
-			unprocessed_grade = name_parts.slice(1).join("_");
-			let grade = processGradeString(unprocessed_grade);
 
-			if (grade !== null) {
-				this.student_id = name_parts[0];
-				this.grade = grade;
-				this.is_format_recognized = true;
-			}
-		} else if (name_parts.length >= 3) { // Here we are checking if the name is in the format "<student_surname>_<student_name>_<grade>".
-			unprocessed_grade = name_parts.slice(2).join("_");
-			let grade = processGradeString(unprocessed_grade);
-			if (grade !== null) {
-				this.student_surname = name_parts[0];
-				this.student_name = name_parts[1];
-				this.grade = grade;
-				this.is_format_recognized = true;
-			}
+		// remove any prefix.
+		let prefixed_name_parts = file_name.split("_");
+		let name_parts = prefixed_name_parts.splice(prefixed_name_parts.length-2, 2);
 
+		if (name_parts.length === 2) { // At this point only the matrikel number and the grade should remain in the name.
+			if (isPositiveInteger(name_parts[0])) { // Here we are checking if the name is in the format "<student_id>_<grade>"
+				// Check if the grade is in the correct format. If not the function "processGradeString" will return null.
+				// Otherwise it will return a string that can be parsed to a float.
+				unprocessed_grade = name_parts[1];
+				let grade = processGradeString(unprocessed_grade);
+
+				if (grade !== null) {
+					this.student_id = name_parts[0];
+					this.grade = grade;
+					this.is_format_recognized = true;
+				}
+			}
 		}
 	}
 }
@@ -490,7 +480,7 @@ function onUploadStart(n) {
 function onUploadProgress(i, n) {
 	let progress = getUploadProgressBar(n);
 	progress.setAttribute("value", i);
-	let label = getDownloadProgressLabel(n);
+	let label = getUploadProgressLabel(n);
 	label.innerHTML = getDownloadingText() + i + "/" + n;
 }
 
