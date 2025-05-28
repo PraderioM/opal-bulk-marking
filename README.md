@@ -2,9 +2,6 @@
 
 Opal-bullk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
-## Disclaimer
-Opal-bulk-marking is stil on its early stages of development and was only tested in the context of the [TU Dresden opal page](https://bildungsportal.sachsen.de/opal/).
-
 Opal-bulk-marking is designed to work on a Firefox browser and will not work on any other browser.
 
 ## Instructions
@@ -71,18 +68,19 @@ These buttons and selectables have the following functions:
 * **selectable**: Allows you to select all marked submissions that you wish to upload to Opal. These submissions should be named as '\<arbitrary_text>\_\<student_id>\_\<grade>.pdf'. Notice how file names following this conventions can be obtained by adding the suffix '\_\<grade>' at the end of the files downloaded using the [bulk download function](#subsec_download). Here '\<grade>' represents the grade assigned to the submission and can be written using either of the following 2 conventions:
     * *\<integer>*: A positive integer representing the grade. For example the grade '7.0' would be written simply as '7' using this convention.
     * *\<integer>.\<decimals>*: A positive integer representing the integer part of a number followed by a dot followed by a positive integer representing the decimal part of a number. For example the grade '7.4' can be written as '7.4' using this convention.
-* **Start upload**: Starts the uploading of all selected files. More precisely opal-bulk-marking will use the name of each of the selected files in order to obtain a grade and a student. It will then look for that student in the list of all available students and upload the marked submission (renamed to 'korrektur.pdf') to its page. While doing so it will also store in the student's page the grade associated to this submission. Before starting the upload process opal-bulk-marking will show you a pop-up listing any error it might encounter (i.e. unrecognized naming conventions or non found students) and showing you the list of all students and grades that it successfully identified. The upload process will start only after you confirm the showed grades are the ones you want to upload.  A progressbar will appear on screen showing the upload progress.
+* **Start upload**: Starts the uploading of all selected files. More precisely opal-bulk-marking will use the name of each of the selected files in order to obtain a grade and a student. It will then look for that student in the list of all available students and upload the marked submission (renamed to 'korrektur.pdf') to its page. While doing so it will also store in the student's page the grade associated to this submission. Before starting the upload process opal-bulk-marking will show you a pop-up listing any error it might encounter (i.e. unrecognized naming conventions or non found students) and showing you the list of all students and grades that it successfully identified. The upload process will start only after you confirm the showed grades are the ones you want to upload.
+Furthermore opal-bulk-marking will detect the students whom have already been graded (if any) and ask you if you wish to replace their grade with the new one. In case of a positive answer IT WILL REMOVE all previous uploaded files and replace them with the new one.
+A progressbar will appear on screen showing the upload progress.
 * **Help**: Shows a pop up with minimal instructions on how to use the bulk upload function of opal-bulk-marking.
 * **Back**: Goes back to the [main page](#subsec_main).
 
 
 **NOTE**: In the case of attempting to upload muliple files associated to the same student opal-bulk-marking will detect the error and halt the uploadprocess.
 
-**IMPORTANT**: In the case of attempting to upload a file associated to a student that has already been marked opal-bulk-marking will overwrite the grade of the student and attempt to upload the new corrections file. This upload will NOT succeed in replacing already existing files if these files are named "korrektur.pdf".
 
 ## Requirements
 * Firefox browser.
-* Access to [TU Dresden opal page](https://bildungsportal.sachsen.de/opal/).
+* Access to an [opal page from a university in Saxony](https://bildungsportal.sachsen.de/opal/).
 
 
 <a id="sec_installation"></a>

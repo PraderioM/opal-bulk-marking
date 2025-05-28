@@ -204,6 +204,11 @@ function getConfirmUploadText() {
 		"Please confirm that you want to upload the following grades:");
 }
 
+function getConfirmReplaceText() {
+	return getLanguageDependentText("Bitte achten, dass Sie diesen Noten ersetzen mochten (wir werden diesen noch einmal fragen):",
+		"Please confirm that you want to replace the following grades (we will ask this again later):");
+}
+
 function getUploadingText() {
 	return getLanguageDependentText("Lädt hoch ", "Uploading ");
 }
@@ -232,6 +237,34 @@ function getAcceptUploadFailedButtonValue() {
 	return getLanguageDependentText("Shade", "Shame");
 }
 
+function getStudentNameTitleText() {
+	return getLanguageDependentText("Studenten", "Student");
+}
+
+function getGradeTitleText() {
+	return getLanguageDependentText("Note", "Grade");
+}
+
+function getNewGradeTitleText() {
+	return getLanguageDependentText("Neue Note", "New grade");
+}
+
+function getOldGradeTitleText() {
+	return getLanguageDependentText("Alte Note", "Old grade");
+}
+
+function getAskReplaceText() {
+	return getLanguageDependentText("Die folgenden Studierenden wurden bereits benotet. Möchten Sie ihre Note durch die neue Note ersetzen? Alle zuvor hochgeladenen Notendateien werden gelöscht und durch die neuen ersetzt:",
+		"The following students have already been graded. Do you wish to replace their grade with the new provided one? All previously uploaded gradedfiles will be removed and replaced by the new ones:");
+}
+
+function getConfirmAskReplaceText() {
+	return getLanguageDependentText("Noten ersetzen", "Replace grades");
+}
+
+function getCancelAskReplaceText() {
+	return getLanguageDependentText("Alte Noten behalten", "Keep old grades");
+}
 
 
 //*************************************************//
