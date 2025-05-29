@@ -46,6 +46,9 @@ function setHomeHeader() {
 				header.appendChild(createEmptySpan());			
 				header.appendChild(getUploadButton());
 
+				header.appendChild(createEmptySpan());			
+				header.appendChild(getStatisticsButton());
+
 				header.appendChild(createEmptySpan());
 				header.appendChild(getGeneralInformationButton());
 
@@ -194,6 +197,22 @@ function createHeader() {
 	header.setAttribute("class", "opal-bulk-header");
 	return header;
 }
+
+
+function getStatisticsButton() {
+	return getElement(getStatisticsButtonId(), createStatisticsButton);
+}
+
+function createStatisticsButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getUploadButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", showStatistics);
+	button.setAttribute("value", getStatisticsButtonValue());
+	return button;
+}
+
 
 function getGeneralInformationButton() {
 	return getElement(getGeneralInformationButtonId(), createGeneralInformationButton);

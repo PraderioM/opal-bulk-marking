@@ -106,6 +106,10 @@ function getRestartFromFileUploadingSessionStorageName() {
 	return "opal-bulk-marking-restart-from-upload";
 }
 
+function getStatisticsButtonId() {
+	return "opal-bulk-marking-statistics-button";
+}
+
 function getGeneralInformationButtonId() {
 	return "opal-bulk-marking-general-information-button";
 }

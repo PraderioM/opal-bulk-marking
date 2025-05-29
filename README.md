@@ -1,4 +1,4 @@
-# OPAL-BULK-MARKING 0.9 (beta)
+# OPAL-BULK-MARKING 1.0
 
 Opal-bullk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
@@ -23,6 +23,11 @@ The big green buttons shown in the image above have the following functions:
 
 * **Download submissions**: Makes all students visible in the assessment table and displays the configuration of buttons described in Section [Bulk download](#subsec_download).
 * **Upload marking**: Makes all students visible in the assessment table and displays the configuration of buttons described in Section [Bulk upload](#subsec_upload).
+* **Statistics**: Shows a pop up with statistics regarding the submissions. More precisely it shows:
+    - An histogram of grade distributions (generated using Plotly).
+    - Average grade and standard deviation.
+    - Number and percentage of students whom have submitted a solution.
+    - Number and percentage of marked submissions.
 * **Help**: Shows a pop-up with minimal instructions on how to use opal-bulk-marking as well as a link to this page.
 
 **IMPORTANT**: In order for the buttons to appear it is necessary for the columns 'Last name', 'First name', 'Institution identifier' and 'Number of files' to be visible in the assessment table.

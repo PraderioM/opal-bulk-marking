@@ -60,13 +60,17 @@ function getLanguageDependentText(german_text, english_text) {
 //******************************************************//
 
 
+function getStatisticsButtonValue() {
+	return getLanguageDependentText("Statistiken", "Statistics");
+}
+
 function getInformationButtonValue() {
 	return getLanguageDependentText("Hilfe", "Help");
 }
 
 function getGeneralInformationText() {
-	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat zwei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.\nSie konnen das Code und vollständige Anweisungen für 'opal-bulk-marking' in den folgende link finden:\n\thttps://github.com/PraderioM/opal-bulk-marking",
-		"Welcome to 'opal-bulk-marking'. This add-on has two functions:\n\t1) Use the Button '" + getDownloadButtonValue() + "' to download submissions and save them in your computer in a chosen format.\n\t2) Use the button '" + getUploadButtonValue() + "' to upload corrections and save grades.\n\nThe source code for 'opal-bulk-marking' as well as more detailed instructions for its usage are freely available on:\n\thttps://github.com/PraderioM/opal-bulk-marking");
+	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat drei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.\n\t2) Über die Schaltflache '" + getStatisticsButtonValue() + "' können Sie Statistiken über der Nachbereitung sehen.\n\nSie konnen das Code und vollständige Anweisungen für 'opal-bulk-marking' in den folgende link finden:\n\thttps://github.com/PraderioM/opal-bulk-marking",
+		"Welcome to 'opal-bulk-marking'. This add-on has three functions:\n\t1) Use the Button '" + getDownloadButtonValue() + "' to download submissions and save them in your computer in a chosen format.\n\t2) Use the button '" + getUploadButtonValue() + "' to upload corrections and save grades.\n\t3) Use the button '" + getStatisticsButtonValue() + "' to view statistics concerning the current assignment.\n\nThe source code for 'opal-bulk-marking' as well as more detailed instructions for its usage are freely available on:\n\thttps://github.com/PraderioM/opal-bulk-marking");
 }
 
 function getStudentShowingErrorMessage() {
@@ -264,6 +268,39 @@ function getConfirmAskReplaceText() {
 
 function getCancelAskReplaceText() {
 	return getLanguageDependentText("Alte Noten behalten", "Keep old grades");
+}
+
+
+//*************************************************//
+// STATISTICS REGION.
+//*************************************************//
+
+function getNoHistogramText() {
+	return getLanguageDependentText("Nicht genügend Daten zum Zeichnen eines Histogramms.", "Insufficient data to show a histogram.");
+}
+
+function getHistogramTitle() {
+	return getLanguageDependentText("Noten", "Grades");
+}
+
+function getNoAverageText() {
+	return getLanguageDependentText("Nicht genügend Daten zur Berechnung von Durchschnitt und Standardabweichung.", "Insufficient data to compute average and standard deviation.");
+}
+
+function getAverageGradeText() {
+	return getLanguageDependentText("Durchschnittsnote: ", "Average grade: ");
+}
+
+function getSubmittedPercentageText() {
+	return getLanguageDependentText("Anzahl der Abgaben: ", "Number of submissions: ");
+}
+
+function getGradedPercentageText() {
+	return getLanguageDependentText("Anzahl der benoteten Abgaben: ", "Number of graded submissions: ");
+}
+
+function getCloseText() {
+	return getLanguageDependentText("Schließen", "Close");
 }
 
 

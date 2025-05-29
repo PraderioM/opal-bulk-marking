@@ -6,6 +6,18 @@
     transform: translate(-50%, -50%);
 }
 
+.opal-bulk-statistics-dialog { 
+    position: absolute;
+    max-width: 600pt;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.opal-bulk-histogram {
+    
+}
+
 .opal-bulk-spaced-container { 
     display: flex;
     justify-content: space-evenly;
