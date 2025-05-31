@@ -13,7 +13,7 @@
   "content_scripts": [
     {
         "matches": ["https://bildungsportal.sachsen.de/*"],
-        "js": ["./node_modules/plotly.js-dist/plotly.js", "./element_ids.js", "./text_handling.js", "./utils.js", "./bulk_download.js", "./bulk_upload.js", "./statistics.js", "./dom_editing.js", "./main.js"],
+        "js": ["./plotly.js", "./element_ids.js", "./text_handling.js", "./utils.js", "./bulk_download.js", "./bulk_upload.js", "./statistics.js", "./dom_editing.js", "./main.js"],
         "css": ["./styles.css"]
     }]
 }

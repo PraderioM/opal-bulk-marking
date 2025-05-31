@@ -23,14 +23,10 @@ The big green buttons shown in the image above have the following functions:
 
 * **Download submissions**: Makes all students visible in the assessment table and displays the configuration of buttons described in Section [Bulk download](#subsec_download).
 * **Upload marking**: Makes all students visible in the assessment table and displays the configuration of buttons described in Section [Bulk upload](#subsec_upload).
-* **Statistics**: Shows a pop up with statistics regarding the submissions. More precisely it shows:
-    - An histogram of grade distributions (generated using Plotly).
-    - Average grade and standard deviation.
-    - Number and percentage of students whom have submitted a solution.
-    - Number and percentage of marked submissions.
+* **Statistics**: Makes all students visible and shows a pop up with statistics regarding the submissions. These statistics are described in Section [Statistics](#subsec_statistics).
 * **Help**: Shows a pop-up with minimal instructions on how to use opal-bulk-marking as well as a link to this page.
 
-**IMPORTANT**: In order for the buttons to appear it is necessary for the columns 'Last name', 'First name', 'Institution identifier' and 'Number of files' to be visible in the assessment table.
+**IMPORTANT**: In order for the buttons to appear it is necessary for the columns 'Last name', 'First name', 'Institution identifier', 'Number of files' and 'Grade' to be visible in the assessment table.
 
 **IMPORTANT**: If the opal page is set in german then opal-bulk-marking will detect this and adapt the language to german. However there is currently no support for any language other than english and german.
 
@@ -82,6 +78,19 @@ A progressbar will appear on screen showing the upload progress.
 
 **NOTE**: In the case of attempting to upload muliple files associated to the same student opal-bulk-marking will detect the error and halt the uploadprocess.
 
+<a id="subsec_statistics"></a>
+### Bulk statistics
+If you press on the 'Statistics' button appearing in the [main page](#subsec_main) opal-bulk-marking will proceed to modifying the assessment table so that all students are visible and show a pop up like the one appearing in the image below.
+
+![statistics](https://github.com/PraderioM/opal-bulk-marking/blob/main/images/statistics.png?raw=true)
+
+This popup contains the following information:
+
+* **Histogram** showing the grade distribution. This histogram (generated using [Plotly](https://github.com/plotly/plotly.js#readme)) groups together all grades in the interval [n,n+1) for n=0,...,10.
+* **Average grade** wich is accompanied with its standard deviation.
+* **Submission percentage**. That is the portion (as a fraction and as percentage) of enrolled students that have submitted a solution.
+* **Graded percentage**. That is the portion (as a fraction and as percentage) of submitted solutions that have been examined, graded and upload to opal.
+
 
 ## Requirements
 * Firefox browser.
@@ -91,8 +100,9 @@ A progressbar will appear on screen showing the upload progress.
 <a id="sec_installation"></a>
 ## Installation
 In order to install the latest version of opal-bulk-marking you need to:
-* Download the [opal-bulk-marking.xpi](https://github.com/PraderioM/opal-bulk-marking/raw/refs/heads/main/opal-bulk-marking.xpi) file that can be found in this same page.
-* Right click on the downloaded file and press on the option 'open with Firefox'.
+* Open your firefox browser.
+* Browse to the opal-bulk-marking [webpage](https://addons.mozilla.org/de/firefox/addon/opal-bulk-marking/).
+* Press on the 'add to firefox' button.
 * Your Firefox browser will open with a notification asking if you wish to add the opal-bulk-marking extension to Firefox.
 * Press on 'Add'.
 * A notification will appear confirming correct installation of the add-on.
