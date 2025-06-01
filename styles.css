@@ -14,9 +14,9 @@
     transform: translate(-50%, -50%);
 }
 
-.opal-bulk-histogram {
-    
-}
+.opal-bulk-histogram { display: flex; justify-content: center; }
+
+.opal-bulk-histogram-canvas { }
 
 .opal-bulk-spaced-container { 
     display: flex;

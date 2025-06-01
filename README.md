@@ -1,4 +1,4 @@
-# OPAL-BULK-MARKING 1.0
+# OPAL-BULK-MARKING 1.1
 
 Opal-bullk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
@@ -86,7 +86,7 @@ If you press on the 'Statistics' button appearing in the [main page](#subsec_mai
 
 This popup contains the following information:
 
-* **Histogram** showing the grade distribution. This histogram (generated using [Plotly](https://github.com/plotly/plotly.js#readme)) groups together all grades in the interval [n,n+1) for n=0,...,10.
+* **Histogram** showing the grade distribution. This histogram groups together all grades in the interval [n,n+1) for n=0,...,10.
 * **Average grade** wich is accompanied with its standard deviation.
 * **Submission percentage**. That is the portion (as a fraction and as percentage) of enrolled students that have submitted a solution.
 * **Graded percentage**. That is the portion (as a fraction and as percentage) of submitted solutions that have been examined, graded and upload to opal.

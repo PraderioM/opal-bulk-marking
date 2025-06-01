@@ -57,7 +57,7 @@ function showStatistics() {
 
 
 // This function takes as input a list of grades and returns a dom element showing an histogram containing all these grades.
-function getHistogram(values, size_val = 1, start_val = 0, end_val = 10) {
+function getHistogram(values, size = 1, start = 0, end = 10) {
 	// If no values are available a paragraph stating that no histogram can be shwed is returned.
 	if (values.length == 0) {
 		let paragraph = document.createElement("p");
@@ -65,23 +65,96 @@ function getHistogram(values, size_val = 1, start_val = 0, end_val = 10) {
 		return p;
 	}
 
-	let data = [
-		{
-			x:values,
-			type: 'histogram',
-			xbins: {
-			    start: start_val,
-			    end: end_val,
-			    size: size_val
-			}
-		}
-	];
 	let histogram = document.createElement("div");
 	histogram.setAttribute("class", "opal-bulk-histogram");
-	Plotly.newPlot(histogram, data, {title: {text: getHistogramTitle()}});
+
+	let canvas = document.createElement("canvas");
+	canvas.setAttribute("class", "opal-bulk-histogram-canvas");
+	let width = 550;
+	let height = 300;
+	canvas.width = width;
+	canvas.height = height;
+	histogram.appendChild(canvas)
+
+	let h_padding = 30;
+	let v_padding = 20;
+	let y_step = 5;
+	
+
+	// Count the number of grades in given intervals.
+	let i = start;
+	let count_list = [];
+	let max = y_step;
+	while (i <= end) {
+		let n = countBetween(values, i, i + size);
+		count_list.push(n);
+		i = i + size;
+		if (n > max) {
+			// We count every y_step in the vertical axis so we take the maximum to be a multiple of y_step.
+			max = Math.ceil(n/y_step)*y_step;
+		}
+	}
+
+	// Draw title.
+	const ctx = canvas.getContext("2d");
+	ctx.textAlign = "center";
+	ctx.fillStyle = "#000000";
+	let default_font = ctx.font;
+	ctx.font = "20px sans-serif";
+    ctx.fillText(getHistogramTitle(), Math.round(width/2), v_padding);
+	ctx.font = default_font;
+
+    // Draw x axis.
+	ctx.textAlign = "left";
+	let bar_size = (width-2*h_padding)/count_list.length;
+	for (let i = 0; i < count_list.length; i++) {
+		ctx.fillText((start+i*size).toString(), Math.round(bar_size*i)+h_padding, height - v_padding);
+	}
+
+    // Draw y axis.
+	ctx.textAlign = "right";
+    let y_coord_sep = (height - 4*v_padding)*y_step/max;
+	for (let i = 0; i <= max/y_step; i++) {
+		let y_start = Math.round(height - 2*v_padding - i*y_coord_sep);
+		ctx.fillText((i*y_step).toString(), h_padding, y_start+5);
+		let line_heigth = i===0?2:1;
+		ctx.fillRect(h_padding, y_start, width - 2*h_padding, line_heigth);
+	}
+
+
+	// Draw number on top of every non empty bar in the histogram.
+	ctx.textAlign = "center";
+	i = 0;
+	for (let n of count_list) {
+		if (n !== 0) {
+			let h = Math.round((n/max)*(height-4*v_padding));
+			ctx.fillRect(Math.round(bar_size*i)+h_padding, height - 2*v_padding - h, Math.ceil(bar_size), h);
+			ctx.fillText(n.toString(), Math.round(bar_size*(i+0.5))+h_padding, height - 2*v_padding - h);
+		}
+		i = i + 1;
+	}
+
+
+	// This block creates a gradient that makes colors go from red to yellow to green as the grade gets better.
+	const my_gradient = ctx.createLinearGradient(h_padding, 0, width-h_padding, 0);
+	my_gradient.addColorStop(0, "red");
+	my_gradient.addColorStop(0.5, "yellow");
+	my_gradient.addColorStop(1, "#00dd00");
+	ctx.fillStyle = my_gradient;
+	// ctx.fillStyle = "#0000dd"; TODO check if it looks better with the gradient os simply making it blue.
+
+	// Draw histogram.
+	i = 0;
+	ctx.fillStyle = my_gradient;
+	for (let n of count_list) {
+		let h = Math.round((n/max)*(height-4*v_padding));
+		ctx.fillRect(Math.round(bar_size*i)+h_padding, height - 2*v_padding - h, Math.ceil(bar_size), h);
+		i = i + 1;
+	}
 
 	return histogram;
 }
+
 
 // This function takes as input a list of grades and returns a dom element showing average and standard deviation of those grades.
 function getAverage(values) {
@@ -157,4 +230,16 @@ function getSubmissionData() {
 		});
 	}
 	return new Promise(gatherData);
+}
+
+// This function takes as input a list of float numbers (values) and two floats (start and end)
+// and returns the number of values in the list in the interval [start, end).
+function countBetween(values, start, end) {
+	let n = 0;
+	for (let val of values) {
+		if (val >= start && val < end) {
+			n = n + 1;
+		}
+	}
+	return n;
 }
