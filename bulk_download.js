@@ -122,7 +122,7 @@ function downloadStudentSubmission(student_url, file_name) {
 
 function getChosenFileNamePrefix() {
 	let input = document.getElementById(getFileNamePrefixId());
-	return sanitize_input(input.value);
+	return sanitizeInput(input.value, ["<id>[1]", "<id>[2]", "<id>[3]", "<id>[4]", "<id>[5]", "<id>[6]", "<id>[7]"]);
 }
 
 function getAddStudentName() {
@@ -203,10 +203,10 @@ function confirmDownloadMarked(marked_students) {
 // (surname, name, student_id, student_page_link, grade) and corresponds to students whose sumbissions have already been marked.
 // The third list has the same format as the first but contains all students.
 function getStudentsInterval(start=["", ""], end=["", ""]) {
-	start[0] = sanitize_name(start[0]);
-	start[1] = sanitize_name(start[1]);
-	end[0] = sanitize_name(end[0]);
-	end[1] = sanitize_name(end[1]);
+	start[0] = sanitizeName(start[0]);
+	start[1] = sanitizeName(start[1]);
+	end[0] = sanitizeName(end[0]);
+	end[1] = sanitizeName(end[1]);
 
 	let table = document.getElementById(getTablePrefix() + getMainFormID());
 
@@ -222,10 +222,10 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 		let allEntries = row.getElementsByTagName("td");
 		let link = allEntries[getSurnameColumn()].getElementsByTagName("a")[1];
 		let surname = link.innerHTML;
-		let sane_surname = sanitize_name(surname);
+		let sane_surname = sanitizeName(surname);
 		let url = link.href;
 		let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-		let sane_name = sanitize_name(name);
+		let sane_name = sanitizeName(name);
 
 		// If the first student is matched or is the default then we set interval to start.
 		if ((start[0] === "" && start[1] === "") || (start[0] === sane_surname && start[1] === sane_name)) {
@@ -261,6 +261,9 @@ function getDownloadFileName(student_id, surname, name, file_name_prefix, add_st
 	let output = "";
 
 	if (file_name_prefix !== "") {
+		for (let i = 1; i <= 7; i++) {
+			file_name_prefix = file_name_prefix.replaceAll("<id>["+i+"]", student_id[i-1]);
+		}
 		output = output + file_name_prefix + "_";
 	}
 
@@ -294,7 +297,7 @@ function onDownloadEnd() {
 }
 
 
-function sanitize_name(str) {
+function sanitizeName(str) {
 	let out_str = str.toLowerCase();
 
 	out_str = out_str.replaceAll("ß", "ss");
@@ -329,16 +332,37 @@ function sanitize_name(str) {
 }
 
 
-function sanitize_input(str) {
-	let pre_processed_str = sanitize_name(str);
-	let output = "";
+function sanitizeInput(str, allowed_strings) {
+	let pre_processed_str = sanitizeName(str);
 
-	// Only the letters in the english alphabet, numbers and the symbols ".", "," and "-" are allowed in the input. We remove everything else.
-	for (let char of pre_processed_str) {
-		if (char.match(/[a-z0-9.,-]/i) !== null) {
-			output = output + char;
+	// The allowed strings need to be recursively removed from the text wich then needs to be sanitized
+	// before being put back together using the allowed string as separator.
+	function recursiveSanitize(substr, remaining_allowed_strings) {
+		if (remaining_allowed_strings.length === 0) {
+			let output = "";
+			// Only the letters in the english alphabet, numbers and the symbols ".", "," and "-" are allowed in the input.
+			// We remove everything else.
+			for (let char of substr) {
+				if (char.match(/[a-z0-9.,-]/i) !== null) {
+					output = output + char;
+				}
+			}
+			return output
+		} else {
+			// We need to separate the string by one of the allowed strings, process the obtained strings using this
+			// same function and then put them back together using the same separator.
+			let separator = remaining_allowed_strings[0];
+			let new_remaining_allowed_strings = remaining_allowed_strings.slice(1, remaining_allowed_strings.length);
+			let substr_list = substr.split(separator);
+			let out_substr_list = [];
+			for (let subsubstr of substr_list) {
+				out_substr_list.push(recursiveSanitize(subsubstr, new_remaining_allowed_strings));
+			}
+			return out_substr_list.join(separator);
 		}
 	}
 
-	return output;
+
+
+	return recursiveSanitize(pre_processed_str, allowed_strings);
 }

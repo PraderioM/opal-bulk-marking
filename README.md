@@ -42,9 +42,11 @@ These buttons, text inputs and checkboxes have the following functions:
 
 * **first student**: Allows you to select the first student of the range of students whose submissions you wish to download. If left blank the first available student will be selected automatically. Only students with exactly one submission are considered.
 * **last student**: Allows you to select the last student of the range of students whose submissions you wish to download. If left blank the last available student will be selected automatically. Only students with exactly one submission are considered.
-* **prefix**: Allows you to specify a custom input that will be added at the start of all downloaded submissions. If no prefix is specified no prefix will be added. Before being added to the name of the downloaded file this prefix will be modified in the following way in order to prevent potential crashes:
-    * The all capital letters will be converted to lowercase.
+* **prefix**: Allows you to specify a custom input that will be added at the start of all downloaded submissions. If no prefix is specified no prefix will be added. Before being added to the name of the downloaded file this prefix will be modified in the following way in order to prevent potential errors and make it easier to organize submission based on the student id:
+    * The strings of the form "<id>[i]"  with "i"  ranging from 1 to 7 will be replaced by te corresponding digit in the student id.
+    * All capital letters will be converted to lowercase.
     * All accented vowels will be replaced by their non accented counterparts and the letters "ß" and "ñ" will be replaced by "ss" and "n" respectively.
+    * 
     * All remaining symbols other than letters, numbers and the punctuation signs ".", ","  and "-" will be removed.
 * **Add student name**: If selected (default) the downloaded files will be in the format "\<prefix>\_\<surname>\_\<name>\_\<student_id>\.pdf" (or "\<surname>\_\<name>\_\<student_id>\.pdf" if no prefix is specified). If not selected the downloaded files will be in the format "\<prefix>\_\<student_id>\.pdf" (or "\<student_id>\.pdf" if no prefix is specified).
 * **Start download**: Dowloads the submissions from all students in the specified range whom have submitted AT LEAST ONE file. Submissions are stored following the specified naming convention. A progressbar will appear on screen showing the download progress.
