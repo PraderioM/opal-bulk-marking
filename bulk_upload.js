@@ -330,7 +330,7 @@ function preProcessFiles(file_list) {
 //     submissions that are detected at least twice.
 //   The fourth list is a list of marked submissions containing all the marked submissions that could not be found. 
 // WARNING marked submissions that match get their data completed with the one found in the table.
-function findStudentsInTable(marked_submissions_list) {
+function findStudentsInTable(marked_submissions_list, default_id = getDefaultStudentId()) {
 	let non_matching_submissions = [... marked_submissions_list];
 	let matching_non_marked_students = [];
 	let matching_marked_students = [];
@@ -355,7 +355,7 @@ function findStudentsInTable(marked_submissions_list) {
 		while (i < non_matching_submissions.length) {
 			let marked_submission = non_matching_submissions[i];
 			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non matching ones.
-			if (marked_submission.student_id === student_id && student_id !== "") {
+			if ((marked_submission.student_id === student_id && student_id !== "") || (student_id === "" && marked_submission.student_id === default_id && marked_submission.student_name === student_name && marked_submission.student_surname === student_surname)) {
 
 				// We update the student info with the matching student
 				marked_submission.student_name = student_name;
@@ -464,7 +464,7 @@ async function confirmUpload(matching_non_marked_submission_list, matching_marke
 		await customAlert(message);
 		return false;
 	}
-	//   If matching submission exists.
+	// If matching submission exists.
 	message = message + getStudentsGradesMessage(matching_non_marked_submission_list, matching_marked_submission_list);
 
 	return await customConfirm(message);
@@ -478,27 +478,7 @@ function getStudentsGradesMessage(non_marked_submission_list, marked_submission_
 
 	if (non_marked_submission_list.length > 0) {
 		message = message + "<span>" + getConfirmUploadText() + "</span>\n";
-		message = message + "<table class=\"opal-bulk-borderless-table\">\n";
-		message = message + "<tr>\n<th>"+getStudentNameTitleText()+"</th>\n<th>"+getGradeTitleText()+"</th>\n</tr>";
-
-		let highlight_row = false;
-		
-		for (let submission_info of non_marked_submission_list) {
-			highlight_row = !highlight_row;
-			let submission = submission_info[1];
-
-			message = message + "<tr>\n<td";
-				if (highlight_row) {
-					message = message + " class=\"opal-bulk-highlighted-cell\"";
-				}
-				message = message + ">" + submission.student_surname + ", " + submission.student_name + "</td>\n";
-				message = message + "<td";
-				if (highlight_row) {
-					message = message + " class=\"opal-bulk-highlighted-cell\"";
-				}
-				message = message + ">" + submission.grade + "</td>\n</tr>\n";
-		}
-		message = message + "</table>\n";
+		message = message + getStudentsNonMarkedGradesMessage(non_marked_submission_list);
 	}
 
 	if (marked_submission_list.length > 0) {
@@ -506,9 +486,43 @@ function getStudentsGradesMessage(non_marked_submission_list, marked_submission_
 		message = message + getStudentsMarkedGradesMessage(marked_submission_list);
 	}
 
+	let no_id_students_list = getNoIdSubmissions(non_marked_submission_list).concat(getNoIdSubmissions(marked_submission_list));
+	if (no_id_students_list.length > 0) {
+		message = message + "<span>" + getConfirmNoIdText() + "</span>\n";
+		message = message + getStudentsNoIdMessage(no_id_students_list);
+	}
+
 	return message;
 }
 
+
+// This function takes as input a list of submissions that have not already been marked (see findStudentsInTable for format) 
+// and returns a message containing the information regarding those submissions (i.e. student name and grade).
+function getStudentsNonMarkedGradesMessage(non_marked_submission_list) {
+	message = "<table class=\"opal-bulk-borderless-table\">\n";
+	message = message + "<tr>\n<th>"+getStudentNameTitleText()+"</th>\n<th>"+getGradeTitleText()+"</th>\n</tr>";
+
+	let highlight_row = false;
+	
+	for (let submission_info of non_marked_submission_list) {
+		highlight_row = !highlight_row;
+		let submission = submission_info[1];
+
+		message = message + "<tr>\n<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.student_surname + ", " + submission.student_name + "</td>\n";
+			message = message + "<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.grade + "</td>\n</tr>\n";
+	}
+	message = message + "</table>\n";
+
+	return message;
+}
 
 // This function takes as input a list of submissions that have already been marked (see findStudentsInTable for format) 
 // and returns a message containing the information regarding those submissions (i.e. student name and old and new grade).
@@ -542,6 +556,49 @@ function getStudentsMarkedGradesMessage(marked_submission_list) {
 		message = message + "</table>\n";
 
 		return message;
+}
+
+// This function takes as input a list of submissions from student that have no associated id and returns a message containing
+// the information regarding those submissions (file name and student name).
+function getStudentsNoIdMessage(submission_list) {
+	message = "<table class=\"opal-bulk-borderless-table\">\n";
+	message = message + "<tr>\n<th>"+getSubmissionNameTitleText()+"</th>\n<th>"+getStudentNameTitleText()+"</th>\n</tr>";
+
+	let highlight_row = false;
+	
+	for (let submission of submission_list) {
+		highlight_row = !highlight_row;
+
+		message = message + "<tr>\n<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.file_name + "</td>\n";
+			message = message + "<td";
+			if (highlight_row) {
+				message = message + " class=\"opal-bulk-highlighted-cell\"";
+			}
+			message = message + ">" + submission.student_surname + ", " + submission.student_name + "</td>\n</tr>\n";
+	}
+	message = message + "</table>\n";
+
+	return message;
+}
+
+// This function takes as input a list of tuples whose second element is asubmission object, checks if the submission
+// has an associated student id and returns a list of submissions tht have no associated id.
+function getNoIdSubmissions(submission_list, default_id = getDefaultStudentId()) {
+	output = [];
+	for (let submission_info of submission_list) {
+		let submission = submission_info[1];
+
+		// We check if the student has no associated student id and if so add it to the list.
+		if (submission.student_id === default_id) {
+			output.push(submission);
+		}
+	}
+
+	return output;
 }
 
 
@@ -607,7 +664,7 @@ function processGradeString(str) {
 
 
 // This class is used to store data relative to a marked submission.
-function MarkedSubmission(file) {
+function MarkedSubmission(file, default_id = getDefaultStudentId()) {
 	// We start by initializing all entries to empty strings and only fill them if the naming format is correct.
 	this.file = file;
 	this.file_name = file.name;
@@ -636,7 +693,7 @@ function MarkedSubmission(file) {
 		let prefixed_name_parts = file_name.split("_");
 		let name_parts = prefixed_name_parts.splice(prefixed_name_parts.length-2, 2);
 
-		if (name_parts.length === 2) { // At this point only the matrikel number and the grade should remain in the name.
+		if (name_parts.length === 2) { // At this point only the student_id and the grade should remain in the name.
 			if (isPositiveInteger(name_parts[0])) { // Here we are checking if the name is in the format "<student_id>_<grade>"
 				// Check if the grade is in the correct format. If not the function "processGradeString" will return null.
 				// Otherwise it will return a string that can be parsed to a float.
@@ -648,6 +705,17 @@ function MarkedSubmission(file) {
 					this.grade = grade;
 					this.is_format_recognized = true;
 				}
+			}
+		}
+
+		// If the student id is the default id then the name should appear in the file name.
+		// In this case we look for it and ad it to the submission information.
+		if (this.student_id === default_id) {
+			name_parts = file_name.split("_");
+			// The surname should be the fourth to last entry while the name should be the third to last entry.
+			if (name_parts.length >= 4) {
+				this.student_name = name_parts[name_parts.length-3];
+				this.student_surname = name_parts[name_parts.length-4];
 			}
 		}
 	}

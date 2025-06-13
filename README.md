@@ -1,4 +1,4 @@
-# OPAL-BULK-MARKING 1.1
+# OPAL-BULK-MARKING 1.3
 
 Opal-bullk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
@@ -58,6 +58,8 @@ These buttons, text inputs and checkboxes have the following functions:
 
 **NOTE**: In the case of a student submitting multiple files opal-bulk-marking will download all of them and add the suffix "\_submission\_\<submission_number>".
 
+**NOTE**: In the case of a student not having a student id opal-bulk-marking will assign it the id "0000000" and store it together with the student name.
+
 **IMPORTANT**: Before starting the download make sure your Firefox browser is configured as described in Section [Configuration](#sec_configuration).
 
 <a id="subsec_upload"></a>
@@ -79,6 +81,8 @@ A progressbar will appear on screen showing the upload progress.
 
 
 **NOTE**: In the case of attempting to upload muliple files associated to the same student opal-bulk-marking will detect the error and halt the uploadprocess.
+
+**NOTE**: In the case of the student id being "0000000" (i.e. no student id appears on opal) then the submission will be matched using the student's name. This might cause issues if the student name has letters not belonging to the english alphabet.
 
 <a id="subsec_statistics"></a>
 ### Bulk statistics

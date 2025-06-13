@@ -257,7 +257,7 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 	return [non_marked_students, marked_students, all_students];
 }
 
-function getDownloadFileName(student_id, surname, name, file_name_prefix, add_student_name) {
+function getDownloadFileName(student_id, surname, name, file_name_prefix, add_student_name, default_id = getDefaultStudentId()) {
 	let output = "";
 
 	if (file_name_prefix !== "") {
@@ -267,8 +267,12 @@ function getDownloadFileName(student_id, surname, name, file_name_prefix, add_st
 		output = output + file_name_prefix + "_";
 	}
 
-	if (add_student_name) {
+	if (add_student_name || student_id === "") {
 		output = output + surname + "_" + name + "_";
+	}
+
+	if (student_id === "") {
+		student_id = default_id;
 	}
 
 	output = output + student_id + ".pdf";

@@ -213,6 +213,11 @@ function getConfirmReplaceText() {
 		"Please confirm that you want to replace the following grades (we will ask this again later):");
 }
 
+function getConfirmNoIdText() {
+	return getLanguageDependentText("Den folgenden Dateien ist keine Matrikelnummer zugeordnet. Bitte stellen Sie sicher, dass sie dem richtigen Studenten zugeordnet wurden:",
+		"The following files have no associated student id, please make sure that they were matched to the correct student:");
+}
+
 function getUploadingText() {
 	return getLanguageDependentText("Lädt hoch ", "Uploading ");
 }
@@ -255,6 +260,10 @@ function getNewGradeTitleText() {
 
 function getOldGradeTitleText() {
 	return getLanguageDependentText("Alte Note", "Old grade");
+}
+
+function getSubmissionNameTitleText() {
+	return getLanguageDependentText("Dateiname", "File name");
 }
 
 function getAskReplaceText() {

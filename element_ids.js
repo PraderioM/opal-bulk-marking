@@ -98,12 +98,8 @@ function getGradeHeaderGerman() {
 	return "Punkte";
 }
 
-function getUploadingFilesSessionStorageName() {
-	return "opal-bulk-marking-uploading-files";
-}
-
-function getRestartFromFileUploadingSessionStorageName() {
-	return "opal-bulk-marking-restart-from-upload";
+function getDefaultStudentId(){
+	return "0000000";
 }
 
 function getStatisticsButtonId() {
