@@ -4,6 +4,7 @@ async function uploadSubmissions() {
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", uploadSubmissions);
+	button.blur(); // Unfocus the button.
 
 	let input_files = document.getElementById(getSubmissionsInputId());
 	let res = preProcessFiles(input_files.files); // Separate the files between the ones in the correct format and the ones in the wrong format.

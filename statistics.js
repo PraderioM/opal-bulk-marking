@@ -1,6 +1,8 @@
 // This function displays all the available students and shows a dialog displaying 
 // several students statistics. It then returns a promise that is resolved when the dialog is closed.
 function showStatistics() {
+	getStatisticsButton().blur(); // Unfocus selected button.
+
 	async function showDialog(resolve) {
 		let header = getHeader();
 		let dialog = document.createElement("dialog");
@@ -61,8 +63,8 @@ function getHistogram(values, size = 1, start = 0, end = 10) {
 	// If no values are available a paragraph stating that no histogram can be shwed is returned.
 	if (values.length == 0) {
 		let paragraph = document.createElement("p");
-		p.innerHTML = getNoHistogramText();
-		return p;
+		paragraph.innerHTML = getNoHistogramText();
+		return paragraph;
 	}
 
 	let histogram = document.createElement("div");
@@ -163,8 +165,8 @@ function getAverage(values) {
 
 	// If no values are available a paragraph stating that no histogram can be shwed is returned.
 	if (n === 0) {	
-		p.innerHTML = getNoAverageText();
-		return p;
+		paragraph.innerHTML = getNoAverageText();
+		return paragraph;
 	}
 
 	// Iterate over all the values and compute the average and standard deviation.

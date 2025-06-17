@@ -206,7 +206,7 @@ function getStatisticsButton() {
 function createStatisticsButton() {
 	let button = document.createElement("input");
 	button.setAttribute("type", "button");
-	button.setAttribute("id", getUploadButtonId());
+	button.setAttribute("id", getStatisticsButtonId());
 	button.setAttribute("class", 'opal-bulk-button');
 	button.addEventListener("click", showStatistics);
 	button.setAttribute("value", getStatisticsButtonValue());

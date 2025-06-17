@@ -5,6 +5,7 @@ async function downloadSubmissionsRange() {
 	let button = getStartDownloadButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", downloadSubmissionsRange);
+	button.blur(); // Unfocus the button.
 
 	// Getting first, last student and naming convention and then obtaining all information relative to the requested list of students.
 	// We will then iterate over this resulting list.
