@@ -24,6 +24,10 @@ function showStatistics() {
 		let average = getAverage(grade_list);
 		dialog.appendChild(average);
 
+		// Create a dom element showing the number of people with a grade above 5.
+		let passing = getPercentageStatistics(filterHigher(grade_list, 5).length, n_graded, getPassingGradedPercentageText());
+		dialog.appendChild(passing);
+
 		// Create a dom element showing the number of students that submitted a solution.
 		let submitted_statistics = getPercentageStatistics(n_submitted, n_total, getSubmittedPercentageText());
 		dialog.appendChild(submitted_statistics);
@@ -187,7 +191,10 @@ function getAverage(values) {
 // This function takes as input two numbers i and n and a text and returns a dom element that shows what percentage i represents out of n.
 function getPercentageStatistics(i, n, text) {
 	let paragraph = document.createElement("p");
-	percentage = Math.round(100 * i / n);
+	let percentage = 100;
+	if (n !== 0) {
+		percentage = Math.round(100 * i / n);
+	}
 	paragraph.innerHTML = text + i.toString() + "/" + n.toString() + " (" + percentage + "%)";
 	return paragraph;
 }
@@ -244,4 +251,16 @@ function countBetween(values, start, end) {
 		}
 	}
 	return n;
+}
+
+// This function takes as input a list of numbers and a threshold and returns a list
+// containing all numbers in the list that are bigger or equal than the threshold.
+function filterHigher(list, threshold) {
+	let output = [];
+	for (let n of list) {
+		if (n >= threshold) {
+			output.push(n);
+		}
+	}
+	return output;
 }

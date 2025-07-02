@@ -300,6 +300,10 @@ function getAverageGradeText() {
 	return getLanguageDependentText("Durchschnittsnote: ", "Average grade: ");
 }
 
+function getPassingGradedPercentageText() {
+	return getLanguageDependentText("Anzahl der bestandenen Einreichungen: ", "Number of passing submissions: ");
+}
+
 function getSubmittedPercentageText() {
 	return getLanguageDependentText("Anzahl der Abgaben: ", "Number of submissions: ");
 }

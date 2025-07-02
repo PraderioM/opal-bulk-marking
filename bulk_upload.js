@@ -723,7 +723,7 @@ function MarkedSubmission(file, default_id = getDefaultStudentId()) {
 }
 
 
-// This function makes all operations needed when file download starts.
+// This function makes all operations needed when file upload starts.
 function onUploadStart(n) {
 	setBulkUploadProgress(n);
 }
@@ -735,10 +735,10 @@ function onUploadProgress(i, n) {
 	let progress = getUploadProgressBar(n);
 	progress.setAttribute("value", i);
 	let label = getUploadProgressLabel(n);
-	label.innerHTML = getDownloadingText() + i + "/" + n;
+	label.innerHTML = getUploadingText() + i + "/" + n;
 }
 
-// This function makes all operations needed when file download ends.
+// This function makes all operations needed when file upload ends.
 async function onUploadEnd(completed = true) {
 	await customAlert(completed ? getUploadCompletedText() : getUploadStoppedText());
 
