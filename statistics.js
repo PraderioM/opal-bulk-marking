@@ -4,58 +4,61 @@ function showStatistics() {
 	getStatisticsButton().blur(); // Unfocus selected button.
 
 	async function showDialog(resolve) {
-		let header = getHeader();
-		let dialog = document.createElement("dialog");
-		dialog.setAttribute("class", "opal-bulk-statistics-dialog");
-		header.appendChild(dialog);
+		// We first collect all the data from students.
+		// IMPORTANT: We need to wait for this to be done first because it loads all visible students.
+		getSubmissionData().then((submission_data) => {
+			grade_list = submission_data[0];
+			n_submitted = submission_data[1];
+			n_graded = submission_data[2];
+			n_total = submission_data[3];
 
-		// collect all students data.
-		let submission_data = await getSubmissionData();
-		grade_list = submission_data[0];
-		n_submitted = submission_data[1];
-		n_graded = submission_data[2];
-		n_total = submission_data[3];
+			// Create a dialog.
+			let header = getHeader();
+			let dialog = document.createElement("dialog");
+			dialog.setAttribute("class", "opal-bulk-statistics-dialog");
+			header.appendChild(dialog);
 
-		// Create an histogram of grades and add it to the dialog.
-		let histogram = getHistogram(grade_list);
-		dialog.appendChild(histogram);
+			// Create an histogram of grades and add it to the dialog.
+			let histogram = getHistogram(grade_list);
+			dialog.appendChild(histogram);
 
-		// Create a dom element showing average grade and standard deviation.
-		let average = getAverage(grade_list);
-		dialog.appendChild(average);
+			// Create a dom element showing average grade and standard deviation.
+			let average = getAverage(grade_list);
+			dialog.appendChild(average);
 
-		// Create a dom element showing the number of people with a grade above 5.
-		let passing = getPercentageStatistics(filterHigher(grade_list, 5).length, n_graded, getPassingGradedPercentageText());
-		dialog.appendChild(passing);
+			// Create a dom element showing the number of people with a grade above 5.
+			let passing = getPercentageStatistics(filterHigher(grade_list, 5).length, n_graded, getPassingGradedPercentageText());
+			dialog.appendChild(passing);
 
-		// Create a dom element showing the number of students that submitted a solution.
-		let submitted_statistics = getPercentageStatistics(n_submitted, n_total, getSubmittedPercentageText());
-		dialog.appendChild(submitted_statistics);
+			// Create a dom element showing the number of students that submitted a solution.
+			let submitted_statistics = getPercentageStatistics(n_submitted, n_total, getSubmittedPercentageText());
+			dialog.appendChild(submitted_statistics);
 
-		// Create a dom element showing the number submitted solutions that have been marked.
-		let graded_statistics = getPercentageStatistics(n_graded, n_submitted, getGradedPercentageText());
-		dialog.appendChild(graded_statistics);
+			// Create a dom element showing the number submitted solutions that have been marked.
+			let graded_statistics = getPercentageStatistics(n_graded, n_submitted, getGradedPercentageText());
+			dialog.appendChild(graded_statistics);
 
-		// Add a button used to close the dialog.
-		let button_container = document.createElement("span");
-		button_container.setAttribute("class", "opal-bulk-spaced-container");
-		dialog.appendChild(button_container);
+			// Add a button used to close the dialog.
+			let button_container = document.createElement("span");
+			button_container.setAttribute("class", "opal-bulk-spaced-container");
+			dialog.appendChild(button_container);
 
-		let close_button = document.createElement("button");
-		close_button.innerHTML = getCloseText();
-		close_button.addEventListener("click", () => {
-			dialog.close();
+			let close_button = document.createElement("button");
+			close_button.innerHTML = getCloseText();
+			close_button.addEventListener("click", () => {
+				dialog.close();
+			});
+			button_container.appendChild(close_button);
+
+			// After closing we delete the dialog and resolve the promise.
+			dialog.onclose = () => {
+				dialog.remove();
+				resolve(true);
+			};
+
+			// Display the dialog.
+			dialog.showModal();
 		});
-		button_container.appendChild(close_button);
-
-		// After closing we delete the dialog and resolve the promise.
-		dialog.onclose = () => {
-			dialog.remove();
-			resolve(true);
-		};
-
-		// Display the dialog.
-		dialog.showModal();
 	}
 
 	return new Promise(showDialog);

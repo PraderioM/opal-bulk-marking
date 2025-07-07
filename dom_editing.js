@@ -120,7 +120,7 @@ function setBulkDownloadProgress(n) {
 }
 
 function setBulkUploadHeader() {
-		showAllStudents().then((res) => {
+	showAllStudents().then((res) => {
 		if (res === 0){
 			setHeader();
 		} else {
