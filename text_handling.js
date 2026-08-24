@@ -26,14 +26,14 @@ function setLanguage() {
 	}
 
 	let link = link_list[link_number]; // The header name should be written in here.
-	// If the header is written in english or german we set the language to english or gernman respectively.
+	// If the header is written in english or german we set the language to english or german respectively.
 	if (startsWithSubstring(link.innerHTML, [getSurnameHeaderEnglish()])) {
 		sessionStorage.setItem(LANGUAGE, ENGLISH);
 	} else if (startsWithSubstring(link.innerHTML, [getSurnameHeaderGerman()])) {
 		sessionStorage.setItem(LANGUAGE, GERMAN);
 	}
 
-	return;
+	// return;
 }
 
 // This function returns true if the detected language is english and false otherwise.
@@ -69,7 +69,7 @@ function getInformationButtonValue() {
 }
 
 function getGeneralInformationText() {
-	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat drei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.\n\t2) Über die Schaltflache '" + getStatisticsButtonValue() + "' können Sie Statistiken über der Nachbereitung sehen.\n\nSie konnen das Code und vollständige Anweisungen für 'opal-bulk-marking' in den folgende link finden:\n\thttps://github.com/PraderioM/opal-bulk-marking",
+	return getLanguageDependentText("Willkommen zu 'opal-bulk-marking'. Dieses add-on hat drei Benutzungsarten:\n\t1) Über die Schaltflache '" + getDownloadButtonValue() + "' können Sie Nachbereitungen herunterladen und sie auf Ihrem Computer in einem Benennungsformat Ihrer Wahl speichern.\n\t2) Über die Schaltflache '" + getUploadButtonValue() + "' können Sie Korrekturen hochladen und Noten abspeichern.\n\t3) Über die Schaltflache '" + getStatisticsButtonValue() + "' können Sie Statistiken über der Nachbereitung sehen.\n\nSie konnen das Code und vollständige Anweisungen für 'opal-bulk-marking' in den folgende link finden:\n\thttps://github.com/PraderioM/opal-bulk-marking",
 		"Welcome to 'opal-bulk-marking'. This add-on has three functions:\n\t1) Use the Button '" + getDownloadButtonValue() + "' to download submissions and save them in your computer in a chosen format.\n\t2) Use the button '" + getUploadButtonValue() + "' to upload corrections and save grades.\n\t3) Use the button '" + getStatisticsButtonValue() + "' to view statistics concerning the current assignment.\n\nThe source code for 'opal-bulk-marking' as well as more detailed instructions for its usage are freely available on:\n\thttps://github.com/PraderioM/opal-bulk-marking");
 }
 
@@ -94,7 +94,7 @@ function getDownloadButtonValue() {
 	return getLanguageDependentText("Nachbereitungen herunterladen", "Download submissions");
 }
 
-function getUploadSelectedButtonDiabledValue() {
+function getUploadSelectedButtonDisabledValue() {
 	return getLanguageDependentText("Wählen Sie bitte die jeweiligen Korrekturen aus", "Please select marked submissions");
 }
 
@@ -165,8 +165,8 @@ function getDownloadNonMarkedButtonValue() {
 
 
 function getUploadInformationText() {
-	return getLanguageDependentText("Zum Hochladen der Korrekturen müssen Sie diese entweder als '<Text>_<Matrikelnummer>_<Note>.pdf' oder als '<Matrikelnummer>_<Note>.pdf' benennen.\nHier muss die '<Note>' als '<Ganzzahlen>.<Dezimalzahlen>' oder als '<Ganzzahlen>' geschrieben werden.\nBeachten Sie, dass diese Benennugsformate so ähnlich wie die heruntergeladenen sind. Mann muss nur '_<Note>' zum Namen der heruntergeladenen Dateien hinzufügen.\nVor dem Hochladen werden Sie gebeten, die Noten zu überprüfen, die dann gespeichert werden.\nWährend des Speichervorgangs, wird die Seite viele Male aktualisiert. Das ist normal. Das Add-on muss das tun, um alle Noten zu speichern.\nWenn Sie das Hochladen anhalten wollen, können Sie die Seite einfach schließen.\nWenn Sie sich dazu entschließen, werden Sie beim nächsten Öffnen von Opal gefragt, ob Sie mit dem Hochladen fortfahren möchten.\nBeachten Sie, dass die Korrekturen unter dem Namen '"+getMarkedPDFName()+"' gespeichert werden.",
-		"In order to upload the marked submissions make sure that they are named either as '<text>_<student id>_<grade>.pdf' or as '<student_id>_<grade>.pdf'.\nHere '<grade>' should be written as '<integer>.<decimals>' or simply '<integer>'.\nNotice how these formats can be obtained by simply adding '_<grade>' at the end of the name of the files downloaded using this add-on.\nBefore starting the upload process you will be showed a prompt asking you to confirm the grades to be saved.\nDuring the upload process the page will be changing multiple times as it iterates over all the students whose submissions have been marked and uploads the results.\nYou can decide to stop the uploading process halfway through by simply closing the tab.\nIf you decide to do so you will then be asked if you wish to continue with the uploading process or halt it.\nNote that the marked files will all be uploaded under the name '"+getMarkedPDFName()+"'.");
+	return getLanguageDependentText("Zum Hochladen der Korrekturen müssen Sie diese entweder als '<Text>_<Matrikelnummer>_<Note>.pdf' oder als '<Matrikelnummer>_<Note>.pdf' benennen.\nHier muss die '<Note>' als '<Ganzzahlen>.<Dezimalzahlen>' oder als '<Ganzzahlen>' geschrieben werden.\nBeachten Sie, dass diese Benennugsformate so ähnlich wie die heruntergeladenen sind. Mann muss nur '_<Note>' zum Namen der heruntergeladenen Dateien hinzufügen.\nVor dem Hochladen werden Sie gebeten, die Noten zu überprüfen, die dann gespeichert werden.\nWährend des Speichervorgangs, wird die Seite viele Male aktualisiert. Das ist normal. Das Add-on muss das tun, um alle Noten zu speichern.\nWenn Sie das Hochladen anhalten wollen, können Sie die Seite einfach schließen.\nWenn Sie sich dazu entschließen, werden Sie beim nächsten Öffnen von Opal gefragt, ob Sie mit dem Hochladen fortfahren möchten.",
+		"In order to upload the marked submissions make sure that they are named either as '<text>_<student id>_<grade>.pdf' or as '<student_id>_<grade>.pdf'.\nHere '<grade>' should be written as '<integer>.<decimals>' or simply '<integer>'.\nNotice how these formats can be obtained by simply adding '_<grade>' at the end of the name of the files downloaded using this add-on.\nBefore starting the upload process you will be showed a prompt asking you to confirm the grades to be saved.\nDuring the upload process the page will be changing multiple times as it iterates over all the students whose submissions have been marked and uploads the results.\nYou can decide to stop the uploading process halfway through by simply closing the tab.\nIf you decide to do so you will then be asked if you wish to continue with the uploading process or halt it.");
 }
 
 function getDuplicateSubmissionText() {
@@ -182,9 +182,9 @@ function getUploadButtonText() {
 	return getLanguageDependentText("Hochladen", "Upload");
 }
 
-function getMarkedPDFName() {
-	return getLanguageDependentText("korrektur.pdf", "marked_submission.pdf");
-}
+// function getMarkedPDFName() {
+// 	return getLanguageDependentText("korrektur.pdf", "marked_submission.pdf");
+// }
 
 function getUnrecognizedFormatText() {
 	return getLanguageDependentText("Ich konnte das Heißungsformat den nächsten Dateien nicht erkannen.\nBitte achten, dass das Heißungsformat '&lt;nächname&gt;_&lt;vorname&gt;_&lt;note&gt;' oder '&lt;matrikelnummer&gt;_&lt;note&gt;' ist.\nHier &lt;note&gt; muss bei dem form '&lt;ganzzahlen&gt;.&lt;dezimalzahlen&gt;' oder einfachtlich '&lt;ganzzahlen&gt;' sein:",
@@ -234,14 +234,6 @@ function getUploadSelectedButtonValue() {
 	return getLanguageDependentText("Hochladen anfangen", "Start upload");
 }
 
-function getDownloadAllButtonValue() {
-	return getLanguageDependentText("Alles herunterladen", "Download all");
-}
-
-function getDownloadNonMarkedButtonValue() {
-	return getLanguageDependentText("Non korrigiert herunterladen", "Download non marked");
-}
-
 function getAcceptUploadFailedButtonValue() {
 	return getLanguageDependentText("Shade", "Shame");
 }
@@ -268,7 +260,7 @@ function getSubmissionNameTitleText() {
 
 function getAskReplaceText() {
 	return getLanguageDependentText("Die folgenden Studierenden wurden bereits benotet. Möchten Sie ihre Note durch die neue Note ersetzen? Alle zuvor hochgeladenen Notendateien werden gelöscht und durch die neuen ersetzt:",
-		"The following students have already been graded. Do you wish to replace their grade with the new provided one? All previously uploaded gradedfiles will be removed and replaced by the new ones:");
+		"The following students have already been graded. Do you wish to replace their grade with the new provided one? All previously uploaded graded files will be removed and replaced by the new ones:");
 }
 
 function getConfirmAskReplaceText() {

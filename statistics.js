@@ -1,16 +1,16 @@
 // This function displays all the available students and shows a dialog displaying 
-// several students statistics. It then returns a promise that is resolved when the dialog is closed.
+// several student's statistics. It then returns a promise that is resolved when the dialog is closed.
 function showStatistics() {
-	getStatisticsButton().blur(); // Unfocus selected button.
+	getStatisticsButton().blur(); // Un-focus selected button.
 
 	async function showDialog(resolve) {
 		// We first collect all the data from students.
 		// IMPORTANT: We need to wait for this to be done first because it loads all visible students.
 		getSubmissionData().then((submission_data) => {
-			grade_list = submission_data[0];
-			n_submitted = submission_data[1];
-			n_graded = submission_data[2];
-			n_total = submission_data[3];
+			let grade_list = submission_data[0];
+			let n_submitted = submission_data[1];
+			let n_graded = submission_data[2];
+			let n_total = submission_data[3];
 
 			// Create a dialog.
 			let header = getHeader();
@@ -18,7 +18,7 @@ function showStatistics() {
 			dialog.setAttribute("class", "opal-bulk-statistics-dialog");
 			header.appendChild(dialog);
 
-			// Create an histogram of grades and add it to the dialog.
+			// Create a histogram of grades and add it to the dialog.
 			let histogram = getHistogram(grade_list);
 			dialog.appendChild(histogram);
 
@@ -65,10 +65,10 @@ function showStatistics() {
 }
 
 
-// This function takes as input a list of grades and returns a dom element showing an histogram containing all these grades.
+// This function takes as input a list of grades and returns a dom element showing a histogram containing all these grades.
 function getHistogram(values, size = 1, start = 0, end = 10) {
-	// If no values are available a paragraph stating that no histogram can be shwed is returned.
-	if (values.length == 0) {
+	// If no values are available a paragraph stating that no histogram can be shown is returned.
+	if (values.length === 0) {
 		let paragraph = document.createElement("p");
 		paragraph.innerHTML = getNoHistogramText();
 		return paragraph;
@@ -113,7 +113,7 @@ function getHistogram(values, size = 1, start = 0, end = 10) {
     ctx.fillText(getHistogramTitle(), Math.round(width/2), v_padding);
 	ctx.font = default_font;
 
-    // Draw x axis.
+    // Draw x-axis.
 	ctx.textAlign = "left";
 	let bar_size = (width-2*h_padding)/count_list.length;
 	for (let i = 0; i < count_list.length; i++) {
@@ -126,12 +126,12 @@ function getHistogram(values, size = 1, start = 0, end = 10) {
 	for (let i = 0; i <= max/y_step; i++) {
 		let y_start = Math.round(height - 2*v_padding - i*y_coord_sep);
 		ctx.fillText((i*y_step).toString(), h_padding, y_start+5);
-		let line_heigth = i===0?2:1;
-		ctx.fillRect(h_padding, y_start, width - 2*h_padding, line_heigth);
+		let line_height = i===0?2:1;
+		ctx.fillRect(h_padding, y_start, width - 2*h_padding, line_height);
 	}
 
 
-	// Draw number on top of every non empty bar in the histogram.
+	// Draw number on top of every non-empty bar in the histogram.
 	ctx.textAlign = "center";
 	i = 0;
 	for (let n of count_list) {
@@ -170,7 +170,7 @@ function getAverage(values) {
 	let paragraph = document.createElement("p");
 	let n = values.length;
 
-	// If no values are available a paragraph stating that no histogram can be shwed is returned.
+	// If no values are available a paragraph stating that no histogram can be shown is returned.
 	if (n === 0) {	
 		paragraph.innerHTML = getNoAverageText();
 		return paragraph;
@@ -191,7 +191,7 @@ function getAverage(values) {
 	return paragraph
 }
 
-// This function takes as input two numbers i and n and a text and returns a dom element that shows what percentage i represents out of n.
+// This function takes as input two numbers i and n and a text and returns a dom element that shows what percentage "i" represents out of n.
 function getPercentageStatistics(i, n, text) {
 	let paragraph = document.createElement("p");
 	let percentage = 100;
@@ -202,7 +202,7 @@ function getPercentageStatistics(i, n, text) {
 	return paragraph;
 }
 
-// This function diplays all students and returns a list of 4 elements consisting in order of:
+// This function displays all students and returns a list of 4 elements consisting in order of:
 //     * A list of grades of all available grades.
 //     * The number of submitted solutions. This includes the ones that have been marked but no file has been uploaded.
 //     * The number of graded submissions.
@@ -214,10 +214,10 @@ function getSubmissionData() {
 			let tableBody = table.getElementsByTagName("tbody")[0];
 
 
-			grade_list = [];
-			n_submitted = 0;
-			n_graded = 0;
-			n_total = 0;
+			let grade_list = [];
+			let n_submitted = 0;
+			let n_graded = 0;
+			let n_total = 0;
 
 			// Iterate over all students.
 			for (let row of tableBody.getElementsByTagName("tr")) {
@@ -238,7 +238,7 @@ function getSubmissionData() {
 			}
 
 			resolve([grade_list, n_submitted, n_graded, n_total]);
-
+			return res;
 		});
 	}
 	return new Promise(gatherData);

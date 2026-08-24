@@ -5,7 +5,7 @@ async function downloadSubmissionsRange() {
 	let button = getStartDownloadButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", downloadSubmissionsRange);
-	button.blur(); // Unfocus the button.
+	button.blur(); // Un-focus the button.
 
 	// Getting first, last student and naming convention and then obtaining all information relative to the requested list of students.
 	// We will then iterate over this resulting list.
@@ -24,7 +24,7 @@ async function downloadSubmissionsRange() {
 	// The function below makes a promise to download the first file in a list, waits for the promise to complete and then proceeds to the next.
 	function recursiveDownload(outer_resolve) {
 		if (students_interval.length === 0) {
-			// When this point is reached all files have been downloaded and we can resolve the promise.
+			// When this point is reached all files have been downloaded, and we can resolve the promise.
 			onDownloadEnd();
 			return outer_resolve(0);
 		} else {
@@ -56,7 +56,7 @@ async function downloadSubmissionsRange() {
 function downloadStudentSubmission(student_url, file_name) {
 
 	function download(download_resolve) {
-		// Once the stundent page is loaded we can start the download.
+		// Once the student page is loaded we can start the download.
 		loadPage(student_url).then((student_page) => {
 			downloadFiles(student_page, download_resolve);
 		});
@@ -81,9 +81,9 @@ function downloadStudentSubmission(student_url, file_name) {
 	}
 
 	// Find all the files submitted and download all of them.
-	function downloadFiles(stundet_page, download_resolve) {
+	function downloadFiles(student_page, download_resolve) {
 		// The submission can be found following a link in the third column row one of the table body of the only table of class "b_briefcase_filetable".
-		let table = stundet_page.getElementsByClassName("b_briefcase_filetable")[0];
+		let table = student_page.getElementsByClassName("b_briefcase_filetable")[0];
 		let tbody = table.tBodies[0];
 		let rows = tbody.children;
 		let download_links = preProcessLinks(rows);
@@ -93,10 +93,10 @@ function downloadStudentSubmission(student_url, file_name) {
 
 	// This function looks at all the rows in the submission table and prepares the appropriate links.
 	function preProcessLinks(row_list) {
-		let pdf_download_column = getPDFDownloadColumn();
+		// let pdf_download_column = getPDFDownloadColumn();
 
 		if (row_list.length === 1) {
-			let cell = row_list[0].children[pdf_download_column];
+			// let cell = row_list[0].children[pdf_download_column];
 			return [[getLinkFromRow(row_list[0]), file_name]];
 		} else {
 			let base_file_name = file_name.slice(0,-4) + "_" + getSubmissionNumberText() + "_";
@@ -133,29 +133,29 @@ function getAddStudentName() {
 
 function getSelectedStudent(dropdown_id, default_value) {
 	let dropdown = document.getElementById(dropdown_id);
-	if (dropdown.selectedIndex == 0) {
+	if (dropdown.selectedIndex === 0) {
 		return default_value;
 	}
 	return dropdown.options[dropdown.selectedIndex].value.split(",");
 }
 
 
-// This function takes as input two list one of non marked students and the other of marked students
+// This function takes as input two list one of non-marked students and the other of marked students
 // (see "getStudentsInterval" for a description on the format) and returns a single list with the same
-// format as the non marked students list that corresponds to all the students whose submissions should be downloaded.
+// format as the non-marked students list that corresponds to all the students whose submissions should be downloaded.
 // The function asks the user for confirmation as to what should be downloaded if necessary.
-// WARNING the function modfies the "non_marked_students" list and make it into the output.
+// WARNING the function modifies the "non_marked_students" list and make it into the output.
 async function preProcessStudentIntervals(non_marked_students, marked_students) {
 
 	if (marked_students.length === 0) {
 		return non_marked_students;
 	}
 
-	// If the user confirms they want to download all students intervals then we add the markedd students intervals
-	// to the non marked ones and later return those.
+	// If the user confirms they want to download all students intervals then we add the marked students intervals
+	// to the non-marked ones and later return those.
 	if (await confirmDownloadMarked(marked_students)) {
 		for (let student_data of marked_students) {
-			// We need to change the format of marked students data in order to match the one of non marked students data.
+			// We need to change the format of marked students data in order to match the one of non-marked students data.
 			non_marked_students.push(student_data.slice(0,4));
 		}
 		return non_marked_students;
@@ -164,7 +164,7 @@ async function preProcessStudentIntervals(non_marked_students, marked_students) 
 	}
 }
 
-// This funtion takes as input a list of marked students (see "getStudentsInterval" for a description on the format) and
+// This function takes as input a list of marked students (see "getStudentsInterval" for a description on the format) and
 // asks the user if they wish to download them of not. It then returns true if they answer yes and false otherwise.
 function confirmDownloadMarked(marked_students) {
 	let message = "<span>" + getConfirmDownloadMarkedText() + "</span>\n";
@@ -198,10 +198,10 @@ function confirmDownloadMarked(marked_students) {
 	return customConfirm(message, getDownloadAllButtonValue(), getDownloadNonMarkedButtonValue());
 }
 
-// This function takes as input the Surname and name of two sets of students and returns thre lists.
+// This function takes as input the Surname and name of two sets of students and returns three lists.
 // The first list contains quadruples of the form (surname, name, student_id, student_page_link) and corresponds to students
 // whose submission has not yet been marked. The second list contains quintuples of the form 
-// (surname, name, student_id, student_page_link, grade) and corresponds to students whose sumbissions have already been marked.
+// (surname, name, student_id, student_page_link, grade) and corresponds to students whose submissions have already been marked.
 // The third list has the same format as the first but contains all students.
 function getStudentsInterval(start=["", ""], end=["", ""]) {
 	start[0] = sanitizeName(start[0]);
@@ -287,7 +287,7 @@ function onDownloadStart(n) {
 }
 
 // This function updates a progress bar that keeps track of the download progress.
-// The value i represents the number of downloaded files while n is the total number of files to download.
+// The value "i" represents the number of downloaded files while n is the total number of files to download.
 function onDownloadProgress(i, n) {
 	let progress = getDownloadProgressBar(n);
 	progress.setAttribute("value", i);	
@@ -297,7 +297,7 @@ function onDownloadProgress(i, n) {
 
 // This function makes all operations needed when file download ends.
 function onDownloadEnd() {
-	customAlert(getDownloadCompletedText());
+	customAlert(getDownloadCompletedText()).then((r) => {return r});
 	setBulkDownloadHeader();
 }
 
@@ -310,7 +310,7 @@ function sanitizeName(str) {
 	
 	out_str = out_str.replaceAll("á", "a");
 	out_str = out_str.replaceAll("à", "a");
-	out_str = out_str.replaceAll("ä", "a");
+	out_str = out_str.replaceAll("ä", "ae");
 	out_str = out_str.replaceAll("â", "a");
 
 	out_str = out_str.replaceAll("é", "e");
@@ -320,17 +320,17 @@ function sanitizeName(str) {
 
 	out_str = out_str.replaceAll("í", "i");
 	out_str = out_str.replaceAll("ì", "i");
-	out_str = out_str.replaceAll("ï", "i");
+	out_str = out_str.replaceAll("ï", "ie");
 	out_str = out_str.replaceAll("î", "i");
 	
 	out_str = out_str.replaceAll("ó", "o");
 	out_str = out_str.replaceAll("ò", "o");
-	out_str = out_str.replaceAll("ö", "o");
+	out_str = out_str.replaceAll("ö", "oe");
 	out_str = out_str.replaceAll("ô", "o");
 	
 	out_str = out_str.replaceAll("ú", "u");
 	out_str = out_str.replaceAll("ù", "u");
-	out_str = out_str.replaceAll("ü", "u");
+	out_str = out_str.replaceAll("ü", "ue");
 	out_str = out_str.replaceAll("û", "u");
 
 	return out_str;
@@ -340,7 +340,7 @@ function sanitizeName(str) {
 function sanitizeInput(str, allowed_strings) {
 	let pre_processed_str = sanitizeName(str);
 
-	// The allowed strings need to be recursively removed from the text wich then needs to be sanitized
+	// The allowed strings need to be recursively removed from the text which then needs to be sanitized
 	// before being put back together using the allowed string as separator.
 	function recursiveSanitize(substr, remaining_allowed_strings) {
 		if (remaining_allowed_strings.length === 0) {

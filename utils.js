@@ -13,7 +13,7 @@ function loadPage(url) {
 	return new Promise(load);
 }
 
-// This function gets as in put a object to download and the name under which it should be downloaded and downloads that object under that name.
+// This function gets as input an object to download and the name under which it should be downloaded and downloads that object under that name.
 // EXAMPLE:
 // 		save(pdf_blob, file_name)
 function save(object, name) {
@@ -30,7 +30,7 @@ function showAllStudents() {
 	// If the students are not currently being shown we will need to update the page and wait for them to become visible.
 	// We will check the ready status every "time_delay" milliseconds.
 	// TODO find a better way to do this.
-	time_delay = "500";
+	let time_delay = 500;
 
 	function waitForLoad(outer_resolve) {
 		// when all the players have been loaded a single button of the class "b_table_page" will appear.
@@ -44,7 +44,7 @@ function showAllStudents() {
 	}
 
 
-	// Look for element containing the show all button and click it. If not found do nothing.
+	// Look for element containing the show all button and click it. If not found we do nothing.
 	function showAll(outer_resolve) {
 		let container_list = document.getElementsByClassName("b_table_page_all");
 		if (container_list.length === 1) { // There should be a single element with the specified class name.
@@ -72,7 +72,7 @@ function startsWithSubstring(main_string, string_list) {
 	return false;
 }
 
-// This function looks for the main table and returns it if it can be found. Otherwise it returns 'null'.
+// This function looks for the main table and returns it if it can be found. Otherwise, it returns 'null'.
 function getMainTable() {
 	let main_form_id = getMainFormID();
 	if (main_form_id === null) {
@@ -89,7 +89,7 @@ function getMainTable() {
 }
 
 // This function looks for the main table and, if it finds it, returns the first column of the main table whose header
-// is among the given ones, or at least starts with one of the givn headers.
+// is among the given ones, or at least starts with one of the given headers.
 // If either the table or the header could not be found then the function returns -1.
 function getHeaderColumn(header_name_list) {
 	let table = getMainTable();
@@ -254,3 +254,5 @@ function customConfirm(message, confirm_text = "", cancel_text = "") {
 
 	return new Promise(showDialog);
 }
+
+// function sanitizeString(text) { }

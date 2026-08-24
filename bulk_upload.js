@@ -4,7 +4,7 @@ async function uploadSubmissions() {
 	let button = getUploadSelectedButton();
 	button.setAttribute("class", "opal-bulk-disabled-button");
 	button.removeEventListener("click", uploadSubmissions);
-	button.blur(); // Unfocus the button.
+	button.blur(); // Un-focus the button.
 
 	let input_files = document.getElementById(getSubmissionsInputId());
 	let res = preProcessFiles(input_files.files); // Separate the files between the ones in the correct format and the ones in the wrong format.
@@ -20,7 +20,7 @@ async function uploadSubmissions() {
 	// The function makes a promise to upload the first submission in a list, waits until it is completed and then proceeds to the next.
 	async function recursiveUpload(outer_resolve, to_upload_list, number_total_submissions) {
 		if (to_upload_list.length === 0) {
-			// When this point is reached all grades have been uploaded and we can resolve the promise.
+			// When this point is reached all grades have been uploaded, and we can resolve the promise.
 			await onUploadEnd(true);
 			return outer_resolve(0);
 		} else {
@@ -53,8 +53,13 @@ async function uploadSubmissions() {
 		if (start_upload) {
 			let submissions_to_upload = await processMarkedSubmissions(matching_non_marked_submissions_list, matching_marked_submissions_list);
 			let n = submissions_to_upload.length;
-			onUploadStart(n);
-			return recursiveUpload(resolve, submissions_to_upload, n);
+			if (n === 0) {
+				await onUploadEnd(true);
+				return resolve(0);
+			} else {
+				onUploadStart(n);
+				return recursiveUpload(resolve, submissions_to_upload, n);
+			}
 		} else {
 			await onUploadEnd(false);
 			return resolve(1);
@@ -65,18 +70,19 @@ async function uploadSubmissions() {
 }
 
 
-// This function takes as input a link to a student page and a maked submision and returns a promise that is resolved when
+// This function takes as input a link to a student page and a marked submission and returns a promise that is resolved when
 // marked submissions has been uploaded to the corresponding page.
 function uploadMatchingSubmission(student_url, marked_submission) {
 
 	// this function loads the student page, then saves the grade and then uploads the student's submission
 	function upload(upload_resolve) {
-		// Once the stundent page is loaded we can save the grade, once that is done we upload the submission.
+		// Once the student page is loaded we can save the grade, once that is done we upload the submission.
 		loadPage(student_url).then((student_page) => {
 			saveGrade(student_page, marked_submission.grade).then(() => {
 				openUploadPage(student_page).then((upload_page) => {
 					removePreviousSubmissions(student_page).then(() => {
-						uploadFile(upload_page, marked_submission.file).then(() => {
+						let file_name = marked_submission.getUploadedFileName(student_page);
+						uploadFile(upload_page, marked_submission.file, file_name).then(() => {
 							return upload_resolve(0);
 						});
 					});
@@ -112,7 +118,7 @@ function openUploadPage(student_page) {
 function saveGrade(student_page, grade) {
 	function mark(resolve) {
 		// The save button is linked to the form where the grade should be saved.
-		// Therefore we first obtain the save button and then modify the associated form.
+		// Therefore, we first obtain the save button and then modify the associated form.
 		let button_list = student_page.getElementsByClassName("b_button");
 		let save_button;
 		for (let button of button_list) {
@@ -163,8 +169,8 @@ function removePreviousSubmissions(student_page) {
 		// that is used on page load to populate the body. We use that script in order to create
 		// the body directly without loading the page.
 		
-		// The length of the link is variable but always lower that 60 characters and ends with "link_0" 
-		// (wich appears only once on the whole string) and starts with "/opal/" wich appears only once in 
+		// The length of the link is variable but always lower than 60 characters and ends with "link_0"
+		// (which appears only once on the whole string) and starts with "/opal/" which appears only once in
 		// the 60 characters before "/link_0".
 		let end = request_response.search("link_0/")+7;
 		let request_link = request_response.substring(end - 60, end);
@@ -204,14 +210,14 @@ function removePreviousSubmissions(student_page) {
 			resolve(1);
 		} else {
 			// Select all checkboxes to delete and recover paths to files.
-			url_encoded_data = "" // here we will store the information we will be sending in the form.
+			let url_encoded_data = "" // here we will store the information we will be sending in the form.
 			for (let row of rows) {
-				file_path = row.children[2].firstChild.firstChild.data;
+				let file_path = row.children[2].firstChild.firstChild.data;
 				if (url_encoded_data !== "") {
 					url_encoded_data = url_encoded_data + "&";
 				}
 				url_encoded_data = url_encoded_data + "paths="+file_path;
-				checkbox = row.firstChild.firstChild;
+				let checkbox = row.firstChild.firstChild;
 				checkbox.checked = true;
 			}
 
@@ -250,11 +256,11 @@ function removePreviousSubmissions(student_page) {
 
 
 // This function returns a promise that is resolved when the marked submission of the corresponding student is uploaded.
-function uploadFile(upload_page, file) {
+function uploadFile(upload_page, file, file_name = "marked_submission.pdf") {
 
 	function upload(resolve) {
 		// The upload button is linked to the form where the files should be loaded.
-		// Therefore we first obtain the upload button and then modify the associated form.
+		// Therefore, we first obtain the upload button and then modify the associated form.
 		let button_list = upload_page.getElementsByTagName("button");
 		let upload_button;
 		for (let button of button_list) {
@@ -268,7 +274,7 @@ function uploadFile(upload_page, file) {
 		// Upload the file by creating a data transfer element.
 		let file_input = form.getElementsByClassName("b_fileinput_realchooser")[0];
 		let blob = file.slice(0, file.size, 'application/pdf');
-		let file_to_upload =  new File([blob], getMarkedPDFName(),{ type: file.type});
+		let file_to_upload =  new File([blob], file_name,{ type: file.type});
 		const data_transfer = new DataTransfer();
 		data_transfer.items.add(file_to_upload);
 		file_input.files = data_transfer.files;
@@ -295,7 +301,7 @@ function uploadFile(upload_page, file) {
 		form_data.set("dispatchevent", "2");
 		request.send(form_data);
 
-		return;
+		// return;
 	}
 
 	return new Promise(upload);
@@ -306,8 +312,8 @@ function uploadFile(upload_page, file) {
 //     files in the correct naming format.
 //   The second is a list of files containing all the files in an unrecognized format.s
 function preProcessFiles(file_list) {
-	marked_submissions_lists = [];
-	unrecognized_files_lists = [];
+	let marked_submissions_lists = [];
+	let unrecognized_files_lists = [];
 
 	for (let file of file_list) {
 		let marked_submission = new MarkedSubmission(file);
@@ -355,7 +361,7 @@ function findStudentsInTable(marked_submissions_list, default_id = getDefaultStu
 		let matching_student_found = false;
 		while (i < non_matching_submissions.length) {
 			let marked_submission = non_matching_submissions[i];
-			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non matching ones.
+			// If we find a matching submission we add it to the list of matched submissions and remove it from the list of non-matching ones.
 			if ((marked_submission.student_id === student_id && student_id !== "") || (student_id === "" && marked_submission.student_id === default_id && marked_submission.student_name === student_name && marked_submission.student_surname === student_surname)) {
 
 				// We update the student info with the matching student
@@ -374,7 +380,7 @@ function findStudentsInTable(marked_submissions_list, default_id = getDefaultStu
 					break;
 				}
 				non_matching_submissions.splice(i,1);
-			// If we have reduced in 1 the amount of non matching submissions we don't need to update the index. Otherwise we do.
+			// If we have reduced in 1 the amount of non-matching submissions we don't need to update the index. Otherwise, we do.
 			} else {
 				i = i + 1;	
 			}
@@ -389,7 +395,7 @@ function findStudentsInTable(marked_submissions_list, default_id = getDefaultStu
 }
 
 // this function takes as input a list of  pairs of the form (student_link, marked_submission) corresponding to all those marked
-//     submissions that are detected at least twice. If the list is empty it returns true. Otherwise it shows an alert listing all
+//     submissions that are detected at least twice. If the list is empty it returns true. Otherwise, it shows an alert listing all
 //     students with duplicate submissions and returns false.
 async function processDuplicateSubmissions(duplicate_submissions_list) {
 	if (duplicate_submissions_list.length === 0) {
@@ -398,7 +404,7 @@ async function processDuplicateSubmissions(duplicate_submissions_list) {
 
 	let message = "<span>" + getDuplicateSubmissionText() + "</span>";
 	message = message + "<table class=\"opal-bulk-borderless-table\">\n";
-	highlight_row = false;
+	let highlight_row = false;
 
 
 	for (let submission_info of duplicate_submissions_list) {
@@ -443,7 +449,7 @@ async function confirmUpload(matching_non_marked_submission_list, matching_marke
 		message = message + "</table>\n";
 	}
 
-	// Non matching submissions.
+	// Non-matching submissions.
 	if (non_matching_submission_list.length !== 0) {
 		message = message  + "<span>"+getNonMatchingStudentsText()+"</span>\n";
 		message = message + "<table class=\"opal-bulk-borderless-table\">\n";
@@ -500,7 +506,7 @@ function getStudentsGradesMessage(non_marked_submission_list, marked_submission_
 // This function takes as input a list of submissions that have not already been marked (see findStudentsInTable for format) 
 // and returns a message containing the information regarding those submissions (i.e. student name and grade).
 function getStudentsNonMarkedGradesMessage(non_marked_submission_list) {
-	message = "<table class=\"opal-bulk-borderless-table\">\n";
+	let message = "<table class=\"opal-bulk-borderless-table\">\n";
 	message = message + "<tr>\n<th>"+getStudentNameTitleText()+"</th>\n<th>"+getGradeTitleText()+"</th>\n</tr>";
 
 	let highlight_row = false;
@@ -528,7 +534,7 @@ function getStudentsNonMarkedGradesMessage(non_marked_submission_list) {
 // This function takes as input a list of submissions that have already been marked (see findStudentsInTable for format) 
 // and returns a message containing the information regarding those submissions (i.e. student name and old and new grade).
 function getStudentsMarkedGradesMessage(marked_submission_list) {
-		message = "<table class=\"opal-bulk-borderless-table\">\n";
+		let message = "<table class=\"opal-bulk-borderless-table\">\n";
 		message = message + "<tr>\n<th>"+getStudentNameTitleText()+"</th>\n<th>"+getNewGradeTitleText()+"</th>\n<th>"+getOldGradeTitleText()+"</th>\n</tr>";
 
 		let highlight_row = false;
@@ -562,7 +568,7 @@ function getStudentsMarkedGradesMessage(marked_submission_list) {
 // This function takes as input a list of submissions from student that have no associated id and returns a message containing
 // the information regarding those submissions (file name and student name).
 function getStudentsNoIdMessage(submission_list) {
-	message = "<table class=\"opal-bulk-borderless-table\">\n";
+	let message = "<table class=\"opal-bulk-borderless-table\">\n";
 	message = message + "<tr>\n<th>"+getSubmissionNameTitleText()+"</th>\n<th>"+getStudentNameTitleText()+"</th>\n</tr>";
 
 	let highlight_row = false;
@@ -586,10 +592,10 @@ function getStudentsNoIdMessage(submission_list) {
 	return message;
 }
 
-// This function takes as input a list of tuples whose second element is asubmission object, checks if the submission
+// This function takes as input a list of tuples whose second element is a submission object, checks if the submission
 // has an associated student id and returns a list of submissions tht have no associated id.
 function getNoIdSubmissions(submission_list, default_id = getDefaultStudentId()) {
-	output = [];
+	let output = [];
 	for (let submission_info of submission_list) {
 		let submission = submission_info[1];
 
@@ -606,7 +612,7 @@ function getNoIdSubmissions(submission_list, default_id = getDefaultStudentId())
 // This function takes as input two lists, one of submissions that have not yet been marked and another for submissions
 // that have already been marked (see findStudentsInTable for format). If there are some already marked submissions then
 // it asks the user weather or not the already marked submissions should be replaced or not on depending on the answer it
-// returns a list with all submissions to upload. Otherwise it just returns the list of non_marked_submissions.
+// returns a list with all submissions to upload. Otherwise, it just returns the list of non_marked_submissions.
 async function processMarkedSubmissions(non_marked_submissions, marked_submissions) {
 	let output = [];
 	for (let submission_info of non_marked_submissions) {
@@ -614,13 +620,13 @@ async function processMarkedSubmissions(non_marked_submissions, marked_submissio
 	}
 
 	if (marked_submissions.length > 0) {
-		// We ask the user if we wants to replace the grades or not.
-		message = "<span>" + getAskReplaceText() + "</span>\n";
+		// We ask the user if they want to replace the grades or not.
+		let message = "<span>" + getAskReplaceText() + "</span>\n";
 		message = message + getStudentsMarkedGradesMessage(marked_submissions);
 		let replace_grades = await customConfirm(message, getConfirmAskReplaceText(), getCancelAskReplaceText());
 
 		// If grades should be replaced we add marked submissions to the output.
-		// Otherwise the output consists on non marked submissions.
+		// Otherwise, the output consists on non-marked submissions.
 		if (replace_grades) {
 			for (let submission_info of marked_submissions) {
 				output.push(submission_info.slice(0,2));
@@ -631,7 +637,7 @@ async function processMarkedSubmissions(non_marked_submissions, marked_submissio
 	return output;
 }
 
-// This function checks if a given string is apositive integer
+// This function checks if a given string is a positive integer
 function isPositiveInteger(str) {
 	let res = str.match("[0-9]+");
 	if (res !== null) {
@@ -646,9 +652,9 @@ function isPositiveInteger(str) {
 
 // This function takes as input a string and checks if it is on the format "<pos int 1>.<pos int 2>"
 // or the format "<pos int>". In that case it returns the string "<pos int 1>.<pos int 2>" or "<pos int>"
-// respectively. Otherwise it returns null.
+// respectively. Otherwise, it returns null.
 function processGradeString(str) {
-	grade_parts = str.split(".");
+	let grade_parts = str.split(".");
 
 	if (grade_parts.length === 1) {
 		if (isPositiveInteger(grade_parts[0])) {
@@ -677,7 +683,7 @@ function MarkedSubmission(file, default_id = getDefaultStudentId()) {
 
 	// first we need to make sure the file extension is correct. That is if the file is indeed a pdf.
 	// In windows the file name might not have the extension encoded in it. In this case there should
-	// be no "."  in the file name. Otherwise there will be a single "." the file name and after it 
+	// be no "."  in the file name. Otherwise, there will be a single "." the file name, and after it
 	// there should only appear the letters "pdf".
 	let file_name_parts = file.name.split(".");
 	let file_extension = file_name_parts[file_name_parts.length - 1];
@@ -697,8 +703,8 @@ function MarkedSubmission(file, default_id = getDefaultStudentId()) {
 		if (name_parts.length === 2) { // At this point only the student_id and the grade should remain in the name.
 			if (isPositiveInteger(name_parts[0])) { // Here we are checking if the name is in the format "<student_id>_<grade>"
 				// Check if the grade is in the correct format. If not the function "processGradeString" will return null.
-				// Otherwise it will return a string that can be parsed to a float.
-				unprocessed_grade = name_parts[1];
+				// Otherwise, it will return a string that can be parsed to a float.
+				let unprocessed_grade = name_parts[1];
 				let grade = processGradeString(unprocessed_grade);
 
 				if (grade !== null) {
@@ -720,6 +726,14 @@ function MarkedSubmission(file, default_id = getDefaultStudentId()) {
 			}
 		}
 	}
+
+	this.getUploadedFileName = (student_page) => {
+		let prefix = student_page.getElementsByClassName("b_with_small_icon_left")[0].innerHTML;
+		prefix = prefix.replaceAll(".", "-");
+		prefix = sanitizeInput(prefix, []);
+
+		return prefix + "_" + this.student_surname + "_" + this.student_name + ".pdf";
+	};
 }
 
 
@@ -730,7 +744,7 @@ function onUploadStart(n) {
 
 
 // This function updates a progress bar that keeps track of the upload progress.
-// The value i represents the number of uploaded files while n is the total number of files to upload.
+// The value "i" represents the number of uploaded files while n is the total number of files to upload.
 function onUploadProgress(i, n) {
 	let progress = getUploadProgressBar(n);
 	progress.setAttribute("value", i);

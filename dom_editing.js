@@ -1,6 +1,6 @@
 function getMainForm() {
 	let mainForm = document.getElementById(getMainFormPrefix() + getMainFormID());
-	return container = mainForm.parentElement;
+	return mainForm.parentElement;
 }
 
 function setup() {
@@ -18,11 +18,11 @@ function clearChildren(dom_element) {
 		child.remove();
 	}*/
 
-	let time_delay= "200";
+	let time_delay= 200;
 
-	function makeSureChildrenremoved(outer_resolve) {
+	function makeSureChildrenRemoved(outer_resolve) {
 		if (!areChildrenRemoved()) {
-			return outer_resolve(new Promise((inner_resolve) => setTimeout(makeSureChildrenremoved, time_delay, inner_resolve)).then((val) => { return val;}));
+			return outer_resolve(new Promise((inner_resolve) => setTimeout(makeSureChildrenRemoved, time_delay, inner_resolve)).then((val) => { return val;}));
 		} else {
 			return outer_resolve(0);
 		}
@@ -32,7 +32,7 @@ function clearChildren(dom_element) {
 		return dom_element.children.length === 0;
 	}
 
-	return new Promise((resolve) => setTimeout(makeSureChildrenremoved, time_delay, resolve));
+	return new Promise((resolve) => setTimeout(makeSureChildrenRemoved, time_delay, resolve));
 }
 
 function setHomeHeader() {
@@ -53,6 +53,7 @@ function setHomeHeader() {
 				header.appendChild(getGeneralInformationButton());
 
 				MODIFYING_PAGE = false;
+				return resolve
 			}
 		);
 	}
@@ -96,9 +97,10 @@ function setBulkDownloadHeader() {
 					header.appendChild(getBackButton());
 
 					MODIFYING_PAGE = false;
+					return resolve;
 				});
 			}
-		return;
+		// return;
 	}
 }
 
@@ -114,9 +116,10 @@ function setBulkDownloadProgress(n) {
 				header.appendChild(getDownloadProgressBar(n));
 
 				MODIFYING_PAGE = false;
+				return resolve;
 			});
 		}
-	return;
+	// return;
 }
 
 function setBulkUploadHeader() {
@@ -148,9 +151,10 @@ function setBulkUploadHeader() {
 					header.appendChild(getBackButton());
 
 					MODIFYING_PAGE = false;
+					return resolve;
 				});
 			}
-		return;
+		// return;
 	}
 }
 
@@ -166,9 +170,10 @@ function setBulkUploadProgress(n) {
 				header.appendChild(getUploadProgressBar(n));
 
 				MODIFYING_PAGE = false;
+				return resolve;
 			});
 		}
-	return;
+	// return;
 }
 
 
