@@ -3,13 +3,13 @@ const ENGLISH = "ENG";
 const GERMAN = "DE";
 
 // This function detects the language in which the table page is set up and stores it as a global variable.
-function setLanguage() {
-	let table = getMainTable();
+function setLanguageTable() {
+	let table = getMainTable(document);
 	if (table === null) {
 		return;
 	}
 
-	let surname_column_index = getSurnameColumn();
+	let surname_column_index = getSurnameColumn(document);
 
 	if (surname_column_index === -1) {
 		return;
@@ -36,6 +36,21 @@ function setLanguage() {
 	// return;
 }
 
+// This function detects the language in which the table page is set up and stores it as a global variable.
+function setLanguageStudentSubmission() {
+	let student_submission_title = getStudentSubmissionTitle();
+	if (student_submission_title === null) {
+		return;
+	}
+
+	let title = student_submission_title.innerHTML;
+	if (startsWithSubstring(title, [getStudentsSubmissionHeaderEnglish()])) {
+		sessionStorage.setItem(LANGUAGE, ENGLISH);
+	} else if (startsWithSubstring(title, [getStudentsSubmissionHeaderGerman()])) {
+		sessionStorage.setItem(LANGUAGE, GERMAN);
+	}
+}
+
 // This function returns true if the detected language is english and false otherwise.
 function isLanguageEnglish() {
 	return sessionStorage.getItem(LANGUAGE) === ENGLISH;
@@ -56,10 +71,10 @@ function getLanguageDependentText(german_text, english_text) {
 
 
 //******************************************************//
-// DOM EDITING REGION.
+// region DOM EDITING.
 //******************************************************//
 
-
+// region MAIN PAGE.
 function getStatisticsButtonValue() {
 	return getLanguageDependentText("Statistiken", "Statistics");
 }
@@ -105,12 +120,33 @@ function getUploadButtonValue() {
 function getSubmissionNamingText() {
 	return getLanguageDependentText("Benennungsformat ", "name submission as ");
 }
+// endregion
 
+// region STUDENT SUBMISSION PAGE
+function getPreviousButtonValue() {
+	return getLanguageDependentText("Vorherige/r", "Previous");
+}
+
+function getNextButtonValue() {
+	return getLanguageDependentText("Nächste/r", "Next");
+}
+
+function getPreviousSubmittedButtonValue() {
+	return getLanguageDependentText("Vorherige/r mit Einrechung", "Previous submitted");
+}
+
+function getNextSubmittedButtonValue() {
+	return getLanguageDependentText("Nächste/r mit Einrechung", "Next submitted");
+}
+// endregion
+
+//******************************************************//
+// endregion
+//******************************************************//
 
 //*************************************************//
-// BULK DOWNLOAD REGION.
+// region BULK DOWNLOAD.
 //*************************************************//
-
 
 function getDownloadInformationText() {
 	return getLanguageDependentText("Über die ersten beiden Dropdown-Menüs können Sie Studenten auswählen, die mindestens ein Dokument eingereicht haben.\nSie konnen durch das Eingabefeldein prefix ein Prefix für die heruntergeladenen dokumente schreiben. Die Zeichenfolgen der Form \"<id>[i]\" mit \"i\" im Bereich von 1 bis 7 werden durch die entsprechende Ziffer in der Matrikelnummer ersetzt und der Text wird leicht modifiziert, um mögliche Fehler zu vermeiden.\nSie konnen durch das Kontrollkästchen die Namen der Studenten in dem Name der heruntergeladenen Dokumente hinzufüngen.\nDanach können Sie die Schaltfläche '"+getStartDownloadButtonValue()+"' klicken, um die Herunterladen aller Einreichungen von den Studenten, die zwischen die beiden ausgewählt Studenten sind, starten.\nDiese Einreichungen werden im gewählten Benennugsformat auf Ihrem Computer gespeichert.\nACHTUNG: Damit dieses Add-on ordnungsgemäß funktionert, müssen Sie zunächst die Kontrollkästchen 'Jedes Mal nachfragen, wo eine Datei gespeichert werden soll' unter 'Dateien und Anwendungen' in Ihrem firefox Einstellungen Seite deaktivieren.",
@@ -158,9 +194,12 @@ function getDownloadNonMarkedButtonValue() {
 	return getLanguageDependentText("Non korrigiert herunterladen", "Download non marked");
 }
 
+//******************************************************//
+// endregion
+//******************************************************//
 
 //*************************************************//
-// BULK UPLOAD REGION.
+// region BULK UPLOAD.
 //*************************************************//
 
 
@@ -271,9 +310,12 @@ function getCancelAskReplaceText() {
 	return getLanguageDependentText("Alte Noten behalten", "Keep old grades");
 }
 
+//******************************************************//
+// endregion
+//******************************************************//
 
 //*************************************************//
-// STATISTICS REGION.
+// region STATISTICS.
 //*************************************************//
 
 function getNoHistogramText() {
@@ -308,9 +350,13 @@ function getCloseText() {
 	return getLanguageDependentText("Schließen", "Close");
 }
 
+//******************************************************//
+// endregion
+//******************************************************//
+
 
 //*************************************************//
-// UTILS REGION.
+// region UTILS.
 //*************************************************//
 
 
@@ -325,3 +371,7 @@ function getCancelButtonValue() {
 function getOKButtonValue() {
 	return getLanguageDependentText("Akzeptieren", "Accept");
 }
+
+//******************************************************//
+// endregion
+//******************************************************//

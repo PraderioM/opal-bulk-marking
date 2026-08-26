@@ -19,8 +19,14 @@ async function downloadSubmissionsRange() {
 	let n = students_interval.length;
 
 	// We prepare the progressbar for downloading.
-	onDownloadStart(n);
-	
+	if (n === 0) {
+		await customAlert("No files to download");
+		setBulkDownloadHeader();
+		return new Promise((r) => {return r(0);});
+	} else {
+		onDownloadStart(n);
+	}
+
 	// The function below makes a promise to download the first file in a list, waits for the promise to complete and then proceeds to the next.
 	function recursiveDownload(outer_resolve) {
 		if (students_interval.length === 0) {
@@ -209,7 +215,7 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 	end[0] = sanitizeName(end[0]);
 	end[1] = sanitizeName(end[1]);
 
-	let table = document.getElementById(getTablePrefix() + getMainFormID());
+	let table = document.getElementById(getTablePrefix() + getMainFormID(document));
 
 	let tableBody = table.getElementsByTagName("tbody")[0];
 
@@ -221,11 +227,11 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 
 	for (let row of tableBody.getElementsByTagName("tr")) {
 		let allEntries = row.getElementsByTagName("td");
-		let link = allEntries[getSurnameColumn()].getElementsByTagName("a")[1];
+		let link = allEntries[getSurnameColumn(document)].getElementsByTagName("a")[1];
 		let surname = link.innerHTML;
 		let sane_surname = sanitizeName(surname);
 		let url = link.href;
-		let name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
+		let name = allEntries[getNameColumn(document)].getElementsByTagName("a")[0].innerHTML;
 		let sane_name = sanitizeName(name);
 
 		// If the first student is matched or is the default then we set interval to start.
@@ -235,11 +241,11 @@ function getStudentsInterval(start=["", ""], end=["", ""]) {
 
 		// Download all students in the interval.
 		if (interval_start) {
-			let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
+			let nSubmissions = allEntries[getNSubmissionsColumn(document)].innerHTML;
 			if (nSubmissions > 0) {
-				let identifier = allEntries[getIDColumn()].innerHTML;
-				name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-				let grade = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
+				let identifier = allEntries[getIDColumn(document)].innerHTML;
+				name = allEntries[getNameColumn(document)].getElementsByTagName("a")[0].innerHTML;
+				let grade = allEntries[getGradeColumn(document)].getElementsByTagName("span")[0].innerHTML;
 				if (grade === "") {
 					non_marked_students.push([surname, name, identifier, url]);
 				} else {

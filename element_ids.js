@@ -1,3 +1,6 @@
+//******************************************************//
+// region ALL SUBMISSIONS
+//******************************************************//
 function getDownloadButtonId() {
 	return "opal-bulk-download-button";
 }
@@ -135,13 +138,13 @@ function getUploadProgressBarId() {
 }
 
 
-function getMainFormID() {
-	let allForms = document.getElementsByTagName("form");
+function getMainFormID(page) {
+	let allForms = page.getElementsByTagName("form");
     for (let i = 0; i < allForms.length; i++) {
     	let formID = allForms[i].id;
 
     	if (formID !== undefined) {
-    		if (formID.substring(0, getMainFormPrefix().length) == getMainFormPrefix()) {
+    		if (formID.substring(0, getMainFormPrefix().length) === getMainFormPrefix()) {
     			return formID.substring(getMainFormPrefix().length, formID.length);
     		}
     	}
@@ -150,3 +153,45 @@ function getMainFormID() {
 
 	return null;
 }
+
+//******************************************************//
+// endregion
+//******************************************************//
+
+//******************************************************//
+// region STUDENT SUBMISSION
+//******************************************************//
+function getStudentSubmissionMainDivId() {
+	return "b_main";
+}
+
+function getStudentSubmissionHeaderId() {
+	return "opal-bulk-student-submission-header"
+}
+
+function getPreviousButtonId() {
+	return "opal-bulk-marking-previous-student";
+}
+
+function getNextButtonId() {
+	return "opal-bulk-marking-next-student";
+}
+
+function getPreviousSubmittedButtonId() {
+	return "opal-bulk-marking-previous-submitted-student";
+}
+
+function getNextSubmittedButtonId() {
+	return "opal-bulk-marking-next-submitted-student";
+}
+
+function getStudentsSubmissionHeaderEnglish() {
+	return "Detailed view of assessment";
+}
+
+function getStudentsSubmissionHeaderGerman() {
+	return "Detailansicht der Bewertung";
+}
+//******************************************************//
+// endregion
+//******************************************************//

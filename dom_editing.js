@@ -1,13 +1,17 @@
 function getMainForm() {
-	let mainForm = document.getElementById(getMainFormPrefix() + getMainFormID());
-	return mainForm.parentElement;
+	let main_form = document.getElementById(getMainFormPrefix() + getMainFormID(document));
+	return main_form.parentElement;
 }
 
 function setup() {
-	if (isTablePage()) {
-		setLanguage();
+	if (isTablePage(document)) {
+		setLanguageTable();
 		getMainForm().prepend(getHeader());
 		setHomeHeader();
+	} else if (isStudentSubmissionPage()) {
+		setLanguageStudentSubmission();
+		getStudentSubmissionTitle().after(getStudentSubmissionHeader());
+		setStudentSubmissionHeader();
 	}
 }
 
@@ -35,6 +39,11 @@ function clearChildren(dom_element) {
 	return new Promise((resolve) => setTimeout(makeSureChildrenRemoved, time_delay, resolve));
 }
 
+//******************************************************//
+// region ALL SUBMISSIONS
+//******************************************************//
+// This region concerns the buttons appearing in the main submissions page. More precisely it sets up the download,
+// upload, statistics and information buttons as well as other related buttons.
 function setHomeHeader() {
 	if (!MODIFYING_PAGE) {
 		MODIFYING_PAGE = true;
@@ -53,14 +62,14 @@ function setHomeHeader() {
 				header.appendChild(getGeneralInformationButton());
 
 				MODIFYING_PAGE = false;
-				return resolve
+				return resolve;
 			}
 		);
 	}
 }
 
 function setBulkDownloadHeader() {
-	showAllStudents().then((res) => {
+	showAllStudents(document).then((res) => {
 		if (res === 0){
 			setHeader();
 		} else {
@@ -123,7 +132,7 @@ function setBulkDownloadProgress(n) {
 }
 
 function setBulkUploadHeader() {
-	showAllStudents().then((res) => {
+	showAllStudents(document).then((res) => {
 		if (res === 0){
 			setHeader();
 		} else {
@@ -175,34 +184,6 @@ function setBulkUploadProgress(n) {
 		}
 	// return;
 }
-
-
-function showGeneralInformation() { alert(getGeneralInformationText()); }
-
-function showUploadInformation() { alert(getUploadInformationText()); }
-
-function showDownloadInformation() { alert(getDownloadInformationText()); }
-
-
-function getElement(element_id, elementCreator) {
-	let element = document.getElementById(element_id);
-	if (element === null) {
-		element = elementCreator();
-	}
-	return element;
-}
-
-function getHeader() {
-	return getElement(getHeaderId(), createHeader);
-}
-
-function createHeader() {
-	let header = document.createElement("div");
-	header.setAttribute("id", getHeaderId());
-	header.setAttribute("class", "opal-bulk-header");
-	return header;
-}
-
 
 function getStatisticsButton() {
 	return getElement(getStatisticsButtonId(), createStatisticsButton);
@@ -344,12 +325,6 @@ function createBackButton() {
 	return button;
 }
 
-function createEmptySpan() { 
-	let empty_span = document.createElement("span");
-	empty_span.setAttribute("class", "opal-bulk-empty-span");
-	return empty_span;
-}
-
 function getStudentsDropdown(dropdown_id, instruction) {
 	return getElement(dropdown_id, function () { return createStudentsDropdown(dropdown_id, instruction);});
 }
@@ -361,7 +336,7 @@ function createStudentsDropdown(dropdown_id, instruction) {
 
 	dropdown.options.add( new Option(instruction,"select", true, true) );
 
-    // We need to join both lists of students before showing anything. WARNING, the format of both lists is slightly different.
+	// We need to join both lists of students before showing anything. WARNING, the format of both lists is slightly different.
 	let all_students_intervals = getStudentsInterval();
 	let all_students = all_students_intervals[2];
 
@@ -397,7 +372,7 @@ function createAddNameCheckboxContainer() {
 	let label = document.createElement("label");
 	label.setAttribute("for", getAddNameCheckboxId());
 	label.innerHTML = getAddNameLabelText();
-	
+
 	let checkbox = document.createElement("input");
 	checkbox.setAttribute("type", "checkbox");
 	checkbox.setAttribute("id", getAddNameCheckboxId());
@@ -459,7 +434,6 @@ function getUploadProgressBar(n) {
 	return getElement(getUploadProgressBarId(), function () {return createUploadProgressBar(n)});
 }
 
-
 function createUploadProgressBar(n) {
 
 	let progress = document.createElement("progress");
@@ -470,3 +444,140 @@ function createUploadProgressBar(n) {
 
 	return progress;
 }
+
+function getHeader() {
+	return getElement(getHeaderId(), createHeader);
+}
+
+function createHeader() {
+	let header = document.createElement("div");
+	header.setAttribute("id", getHeaderId());
+	header.setAttribute("class", "opal-bulk-header");
+	return header;
+}
+//******************************************************//
+// endregion.
+//******************************************************//
+
+//******************************************************//
+// region STUDENT SUBMISSION
+//******************************************************//
+// This region makes the modifications concerning a student submission page. more precisely it sets the previous
+// submitted, previous, next and next submitted buttons.
+
+function setStudentSubmissionHeader() {
+	if (!MODIFYING_PAGE) {
+		MODIFYING_PAGE = true;
+		let header = getStudentSubmissionHeader();
+		clearChildren(header).then(
+			(resolve) => {
+				header.appendChild(getPreviousSubmittedButton());
+				header.appendChild(getPreviousButton());
+				header.appendChild(getNextButton());
+				header.appendChild(getNextSubmittedButton());
+
+				MODIFYING_PAGE = false;
+				return resolve;
+			}
+		);
+	}
+}
+
+function getPreviousButton() {
+	return getElement(getPreviousButtonId(), createPreviousButton);
+}
+
+function createPreviousButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getPreviousButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", goToPrevious);
+	button.setAttribute("value", getPreviousButtonValue());
+	return button;
+}
+
+function getNextButton() {
+	return getElement(getNextButtonId(), createNextButton);
+}
+
+function createNextButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getNextButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", goToNext);
+	button.setAttribute("value", getNextButtonValue());
+	return button;
+}
+
+function getPreviousSubmittedButton() {
+	return getElement(getPreviousSubmittedButtonId(), createPreviousSubmittedButton);
+}
+
+function createPreviousSubmittedButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getPreviousSubmittedButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", goToPreviousSubmitted);
+	button.setAttribute("value", getPreviousSubmittedButtonValue());
+	return button;
+}
+
+function getNextSubmittedButton() {
+	return getElement(getNextSubmittedButtonId(), createNextSubmittedButton);
+}
+
+function createNextSubmittedButton() {
+	let button = document.createElement("input");
+	button.setAttribute("type", "button");
+	button.setAttribute("id", getNextSubmittedButtonId());
+	button.setAttribute("class", 'opal-bulk-button');
+	button.addEventListener("click", goToNextSubmitted);
+	button.setAttribute("value", getNextSubmittedButtonValue());
+	return button;
+}
+
+function getStudentSubmissionHeader() {
+	return getElement(getStudentSubmissionHeaderId(), createStudentSubmissionHeader);
+}
+
+function createStudentSubmissionHeader() {
+	let header = document.createElement("div");
+	header.setAttribute("id", getStudentSubmissionHeaderId());
+	header.setAttribute("class", "opal-bulk-student-submission-header");
+	return header;
+}
+
+//******************************************************//
+// endregion
+//******************************************************//
+
+//******************************************************//
+// region UTILS
+//******************************************************//
+function showGeneralInformation() { alert(getGeneralInformationText()); }
+
+function showUploadInformation() { alert(getUploadInformationText()); }
+
+function showDownloadInformation() { alert(getDownloadInformationText()); }
+
+
+function getElement(element_id, elementCreator) {
+	let element = document.getElementById(element_id);
+	if (element === null) {
+		element = elementCreator();
+	}
+	return element;
+}
+
+function createEmptySpan() {
+	let empty_span = document.createElement("span");
+	empty_span.setAttribute("class", "opal-bulk-empty-span");
+	return empty_span;
+}
+
+//******************************************************//
+// endregion
+//******************************************************//

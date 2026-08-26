@@ -40,7 +40,13 @@
     width: 40%;
 }
 
-.opal-bulk-header {}
+.opal-bulk-header { }
+
+.opal-bulk-student-submission-header {
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: 10pt;
+}
 
 .opal-bulk-empty-span {
 	width: 5px;

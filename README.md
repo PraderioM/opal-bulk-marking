@@ -1,4 +1,4 @@
-# OPAL-BULK-MARKING 1.3
+# OPAL-BULK-MARKING 1.4
 
 Opal-bulk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
@@ -12,6 +12,9 @@ For instructions on how to set up your Firefox browser in order for the [bulk do
 Once installed opal-bulk-marking will make no modifications on your browser until you enter the opal page where submissions for a given assessment are listed.
 This is the page that can be accessed by selecting a given module, pressing on the 'Assessment tool' icon on the top (appearing as a cogwheel), selecting the 'As per group' option on the table on the left side of the page, selecting a 'Group name' from the table that appears and finally selecting the desired assessment from the 'display' dropdown appearing on the right side just above the main table.
 In what follows we will refer to this page simply as the *assessment page* and to the table appearing in this page simply as *assessment table*.
+
+Starting at version 1.4, opal-bulk-marking also edits the *student page* to which opal redirects you to after clicking on a name on the assessment table.
+See subsection [navigation](#subsec_navigation) for a description of these modifications and how they can be used in order to rapidly navigate between students.
 
 <a id="subsec_main"></a>
 ### Main page
@@ -85,7 +88,7 @@ A progressbar will appear on screen showing the upload progress.
 **NOTE**: In the case of the student id being "0000000" (i.e. no student id appears on opal) then the submission will be matched using the student's name. This might cause issues if the student name has letters not belonging to the english alphabet.
 
 <a id="subsec_statistics"></a>
-### Bulk statistics
+### Statistics
 If you press on the 'Statistics' button appearing in the [main page](#subsec_main) opal-bulk-marking will proceed to modifying the assessment table so that all students are visible and show a pop-up like the one appearing in the image below.
 
 ![statistics](https://github.com/PraderioM/opal-bulk-marking/blob/main/images/statistics.png?raw=true)
@@ -97,6 +100,18 @@ This popup contains the following information:
 * **Submission percentage**. That is the portion (as a fraction and as percentage) of enrolled students that have submitted a solution.
 * **Graded percentage**. That is the portion (as a fraction and as percentage) of submitted solutions that have been examined, graded and upload to opal.
 
+<a id="subsec_navigation"></a>
+### Navigation
+After clicking on a student in the assessment table opal will redirect you to the page corresponding to that student for the selected assessment. Once in this page opal-bulk-marking will make modifications so that the following appears under the title "Detailed view of assessment" (or "Detailansicht der Bewertung" in german).
+
+![navigation](https://github.com/PraderioM/opal-bulk-marking/blob/main/images/navigation.png?raw=true)
+
+The big green buttons shown in the image above have the following functions:
+
+* **Previous**: Changes the current student page to the page corresponding to the student appearing right before it in the assessment table. If there is no such student it will show a pop-up informing about this. 
+* **Next**: Changes the current student page to the page corresponding to the student appearing right after it in the assessment table. If there is no such student it will show a pop-up informing about this.
+* **Previous submitted**: Changes the current student page to the page corresponding to the first student appearing before it in the assessment table and having made a submission. If there is no such student it will show a pop-up informing about this.
+* **Next submitted**: Changes the current student page to the page corresponding to the first student appearing after it in the assessment table and having made a submission. If there is no such student it will show a pop-up informing about this.
 
 ## Requirements
 * Firefox browser.
@@ -117,7 +132,7 @@ In order to install the latest version of opal-bulk-marking you need to:
 ## Configuration
 The default settings of your Firefox browser might lead to a new page opening up on Firefox for every downloaded submission.
 This might be quite annoying and might interfere with the correct functioning of the opal-bulk-marking add on.
-In order to fix this go to the '[preferences](about:preferences)' page of your Firefox browser. Under the 'Downloads' tab look for 'Download files in' section (it should be the first one and deselect the 'Always ask you where to save files' checkbox.
+In order to fix this go to the '[preferences](about:preferences)' page of your Firefox browser. Under the 'Downloads' tab look for 'Download files in' section (it should be the first one) and deselect the 'Always ask you where to save files' checkbox.
 Under the 'Files and application' section look for the line corresponding to 'PDF (Portable Document Format)' and make sure that the 'action' associated to it is set to 'Save File'.
 
 For guidance the image below shows an example of a correct configuration.

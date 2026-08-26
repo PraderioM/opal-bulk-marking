@@ -8,7 +8,7 @@ function main() {
 }
 
 function resetPage() {
-	if (document.getElementById(getHeaderId()) === null && !MODIFYING_PAGE) {
+	if (document.getElementById(getHeaderId()) === null && document.getElementById(getStudentSubmissionHeaderId()) === null && !MODIFYING_PAGE) {
 		setup();
 	}
 }

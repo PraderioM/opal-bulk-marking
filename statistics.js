@@ -209,8 +209,8 @@ function getPercentageStatistics(i, n, text) {
 //     * The total number of students.
 function getSubmissionData() {
 	function gatherData(resolve) {
-		showAllStudents().then((res) => {
-			let table = document.getElementById(getTablePrefix() + getMainFormID());
+		showAllStudents(document).then((res) => {
+			let table = document.getElementById(getTablePrefix() + getMainFormID(document));
 			let tableBody = table.getElementsByTagName("tbody")[0];
 
 
@@ -222,8 +222,8 @@ function getSubmissionData() {
 			// Iterate over all students.
 			for (let row of tableBody.getElementsByTagName("tr")) {
 				let allEntries = row.getElementsByTagName("td");
-				let grade_string = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
-				let nSubmissions = allEntries[getNSubmissionsColumn()].innerHTML;
+				let grade_string = allEntries[getGradeColumn(document)].getElementsByTagName("span")[0].innerHTML;
+				let nSubmissions = allEntries[getNSubmissionsColumn(document)].innerHTML;
 
 				// Update statistics accordingly.
 				n_total = n_total + 1;

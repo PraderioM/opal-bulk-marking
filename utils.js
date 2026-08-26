@@ -25,8 +25,11 @@ function save(object, name) {
 	a.click();
 }
 
+//******************************************************//
+// region ALL SUBMISSIONS PAGE
+//******************************************************//
 // this function returns a promise that is resolved when all the students are visible in the current page.
-function showAllStudents() {
+function showAllStudents(page) {
 	// If the students are not currently being shown we will need to update the page and wait for them to become visible.
 	// We will check the ready status every "time_delay" milliseconds.
 	// TODO find a better way to do this.
@@ -35,7 +38,7 @@ function showAllStudents() {
 	function waitForLoad(outer_resolve) {
 		// when all the players have been loaded a single button of the class "b_table_page" will appear.
 		// TODO find a better way to do this.
-		if (document.getElementsByClassName("b_table_page").length !== 1) {
+		if (page.getElementsByClassName("b_table_page").length !== 1) {
 			return setTimeout(() => { waitForLoad(outer_resolve); }, time_delay);
 		}
 		else {
@@ -46,7 +49,7 @@ function showAllStudents() {
 
 	// Look for element containing the show all button and click it. If not found we do nothing.
 	function showAll(outer_resolve) {
-		let container_list = document.getElementsByClassName("b_table_page_all");
+		let container_list = page.getElementsByClassName("b_table_page_all");
 		if (container_list.length === 1) { // There should be a single element with the specified class name.
 			let container = container_list[0];
 			let buttons_list = container.getElementsByTagName("a");
@@ -73,13 +76,13 @@ function startsWithSubstring(main_string, string_list) {
 }
 
 // This function looks for the main table and returns it if it can be found. Otherwise, it returns 'null'.
-function getMainTable() {
-	let main_form_id = getMainFormID();
+function getMainTable(page) {
+	let main_form_id = getMainFormID(page);
 	if (main_form_id === null) {
 		return null;
 	}
 
-	let table = document.getElementById(getTablePrefix()+main_form_id);
+	let table = page.getElementById(getTablePrefix()+main_form_id);
 
 	if (table === undefined) {
 		return null;
@@ -91,8 +94,8 @@ function getMainTable() {
 // This function looks for the main table and, if it finds it, returns the first column of the main table whose header
 // is among the given ones, or at least starts with one of the given headers.
 // If either the table or the header could not be found then the function returns -1.
-function getHeaderColumn(header_name_list) {
-	let table = getMainTable();
+function getHeaderColumn(page, header_name_list) {
+	let table = getMainTable(page);
 	if (table === null) {
 		return -1;
 	}
@@ -119,50 +122,121 @@ function getHeaderColumn(header_name_list) {
 
 // This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the surname.
 // If either the main table or surname column cannot be found the function returns -1.
-function getSurnameColumn() {
-	return getHeaderColumn([getSurnameHeaderEnglish(), getSurnameHeaderGerman()]);
+function getSurnameColumn(page) {
+	return getHeaderColumn(page,[getSurnameHeaderEnglish(), getSurnameHeaderGerman()]);
 }
 
 // This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the name.
 // If either the main table or name column cannot be found the function returns -1.
-function getNameColumn() {
-	return getHeaderColumn([getNameHeaderEnglish(), getNameHeaderGerman()]);
+function getNameColumn(page) {
+	return getHeaderColumn(page,[getNameHeaderEnglish(), getNameHeaderGerman()]);
 }
 
 // This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the student ID.
 // If either the main table or student ID column cannot be found the function returns -1.
-function getIDColumn() {
-	return getHeaderColumn([getIDHeaderEnglish(), getIDHeaderGerman()]);
+function getIDColumn(page) {
+	return getHeaderColumn(page,[getIDHeaderEnglish(), getIDHeaderGerman()]);
 }
 
 // This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the number of submissions.
 // If either the main table or number of submissions column cannot be found the function returns -1.
-function getNSubmissionsColumn() {
-	return getHeaderColumn([getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()]);
+function getNSubmissionsColumn(page) {
+	return getHeaderColumn(page,[getNSubmissionsHeaderEnglish(), getNSubmissionsHeaderGerman()]);
 }
 
 // This function looks for the main table and, if it finds it, returns the column of the main table corresponding to the grade.
 // If either the main table or grade column cannot be found the function returns -1.
-function getGradeColumn() {
-	return getHeaderColumn([getGradeHeaderEnglish(), getGradeHeaderGerman()]);
+function getGradeColumn(page) {
+	return getHeaderColumn(page,[getGradeHeaderEnglish(), getGradeHeaderGerman()]);
 }
 
 // This function checks if we are currently located in the page where we can see submission for a given exercise.
-function isTablePage() {
-	return (getSurnameColumn() !== -1) && (getNameColumn() !== -1) && (getIDColumn() !== -1) && (getNSubmissionsColumn() !== -1 && (getGradeColumn() !== -1));
+function isTablePage(page) {
+	return (getSurnameColumn(page) !== -1) && (getNameColumn(page) !== -1) && (getIDColumn(page) !== -1) && (getNSubmissionsColumn(page) !== -1 && (getGradeColumn(page) !== -1));
 }
+//******************************************************//
+// endregion
+//******************************************************//
+
+//******************************************************//
+// region STUDENT SUBMISSION PAGE
+//******************************************************//
+// This function returns the main div in a student submission page or null if that div could not be found.
+function getStudentSubmissionMainDiv() {
+	let elements = document.getElementsByClassName("b_with_small_icon_left");
+	if (elements.length !== 3) {
+		return null;
+	}
+
+	return elements[0].parentNode;
+}
+
+// This function returns the title in a student submission page or null if that title could not be found.
+function getStudentSubmissionTitle() {
+	let main_div = getStudentSubmissionMainDiv();
+	if (main_div === null) {
+		return null;
+	}
+
+	let headers = main_div.getElementsByTagName("h4");
+	if (headers.length !== 1) {
+		return null;
+	}
+
+	return headers[0];
+}
+
+// This function returns the back button in a student submission page or null if that button could not be found.
+function getStudentSubmissionBackLink() {
+	let main_div = getStudentSubmissionMainDiv();
+	if (main_div === null) {
+		return null;
+	}
+
+	let spans = main_div.getElementsByTagName("span");
+	if (spans.length === 0) {
+		return null;
+	}
+
+	let links = spans[0].getElementsByTagName("a");
+	if (links.length !== 1) {
+		return null;
+	}
+
+	return links[0];
+}
+
+// This function checks if we are currently located in the page where we can the submission of a particular student for a given exercise.
+function isStudentSubmissionPage() {
+	let link = getStudentSubmissionBackLink();
+	if (link === null) {
+		return false;
+	}
+
+	let title = getStudentSubmissionTitle();
+	if (title === null) {
+		return false;
+	}
+
+	return startsWithSubstring(title.innerHTML, [getStudentsSubmissionHeaderEnglish(), getStudentsSubmissionHeaderGerman()]);
+	// let page = await loadPage(link.href);
+	// return isTablePage(page);
+}
+//******************************************************//
+// endregion
+//******************************************************//
 
 
 // This functions takes as input HTML code and a string and shows the HTML in a dialog box that mimics the alert function.
 // The button used to close the box shows the value of the string. If this value is an empty string then the default 
 // getOKButtonValue() is used.
-function customAlert(message, accept_text = "") {
+function customAlert(message, accept_text = "", headerCaller = getHeader) {
 	if (accept_text === "") {
 		accept_text = getOKButtonValue();
 	}
 	
 	function showDialog(resolve) {
-		let header = getHeader();
+		let header = headerCaller();
 		let dialog = document.createElement("dialog");
 		dialog.setAttribute("class", "opal-bulk-dialog");
 		header.appendChild(dialog);
@@ -197,7 +271,7 @@ function customAlert(message, accept_text = "") {
 // This functions takes as input HTML code and two string "confirm_text" and "cancel_text" and the HTML in a dialog box that
 // mimics the custom function. The two buttons to accept or reject the displayed message take values from the corresponding
 // texts. If these values are empty string then the defaults getConfirmButtonValue() and getCancelButtonValue are used.
-function customConfirm(message, confirm_text = "", cancel_text = "") {
+function customConfirm(message, confirm_text = "", cancel_text = "", headerCaller = getHeader) {
 	if (confirm_text === "") {
 		confirm_text = getConfirmButtonValue();
 	}
@@ -206,7 +280,7 @@ function customConfirm(message, confirm_text = "", cancel_text = "") {
 	}
 
 	function showDialog(resolve) {
-		let header = getHeader();
+		let header = headerCaller();
 		let dialog = document.createElement("dialog");
 		dialog.setAttribute("class", "opal-bulk-dialog");
 		header.appendChild(dialog);
@@ -255,4 +329,9 @@ function customConfirm(message, confirm_text = "", cancel_text = "") {
 	return new Promise(showDialog);
 }
 
-// function sanitizeString(text) { }
+// This functions follows a link to a new page.
+function followLink(url) {
+	let link = document.createElement("a");
+	link.setAttribute("href", url);
+	link.click();
+}

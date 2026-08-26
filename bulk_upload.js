@@ -344,16 +344,16 @@ function findStudentsInTable(marked_submissions_list, default_id = getDefaultStu
 	let duplicate_submissions = [];
 
 	// Get table.
-	let table = document.getElementById(getTablePrefix() + getMainFormID());
+	let table = document.getElementById(getTablePrefix() + getMainFormID(document));
 	let tableBody = table.getElementsByTagName("tbody")[0];
 
 	// Iterate over all visible students first and then over the submissions.
 	for (let row of tableBody.getElementsByTagName("tr")) {
 		let allEntries = row.getElementsByTagName("td");
-		let link = allEntries[getSurnameColumn()].getElementsByTagName("a")[1];
+		let link = allEntries[getSurnameColumn(document)].getElementsByTagName("a")[1];
 		let student_surname = link.innerHTML;
-		let student_name = allEntries[getNameColumn()].getElementsByTagName("a")[0].innerHTML;
-		let student_id = allEntries[getIDColumn()].innerHTML;
+		let student_name = allEntries[getNameColumn(document)].getElementsByTagName("a")[0].innerHTML;
+		let student_id = allEntries[getIDColumn(document)].innerHTML;
 		let url = link.href;
 		
 		// Check if the current student has a matching submission.
@@ -368,7 +368,7 @@ function findStudentsInTable(marked_submissions_list, default_id = getDefaultStu
 				marked_submission.student_name = student_name;
 				marked_submission.student_surname = student_surname;
 				if (!matching_student_found) {
-					let grade = allEntries[getGradeColumn()].getElementsByTagName("span")[0].innerHTML;
+					let grade = allEntries[getGradeColumn(document)].getElementsByTagName("span")[0].innerHTML;
 					if (grade === "") {
 						matching_non_marked_students.push([url, marked_submission]);
 					} else {
