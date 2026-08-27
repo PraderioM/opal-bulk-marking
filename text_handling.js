@@ -132,11 +132,27 @@ function getNextButtonValue() {
 }
 
 function getPreviousSubmittedButtonValue() {
-	return getLanguageDependentText("Vorherige/r mit Einrechung", "Previous submitted");
+	return getLanguageDependentText("Vorherige/r mit Einreichung", "Previous submitted");
 }
 
 function getNextSubmittedButtonValue() {
-	return getLanguageDependentText("Nächste/r mit Einrechung", "Next submitted");
+	return getLanguageDependentText("Nächste/r mit Einreichung", "Next submitted");
+}
+
+function getFirstStudentNoSubmissionAlertText() {
+	return getLanguageDependentText("Diesen is der/die erste Studenten/inen in diese Seite", "This is the first student in this page.")
+}
+
+function getLastStudentNoSubmissionAlertText() {
+	return getLanguageDependentText("Diesen is der/die letzte Studenten/inen in diese Seite", "This is the last student in this page.")
+}
+
+function getFirstStudentWithSubmissionAlertText() {
+	return getLanguageDependentText("Auf dieser Seite sind keine Studierenden mit Einreichungen vor der aktuelle Studenten/inen.", "There are no students with submissions before the current one in this page.")
+}
+
+function getLastStudentWithSubmissionAlertText() {
+	return getLanguageDependentText("Auf dieser Seite sind keine Studierenden mit Einreichungen nach der aktuelle Studenten/inen.", "There are no students with submissions after the current one in this page.")
 }
 // endregion
 

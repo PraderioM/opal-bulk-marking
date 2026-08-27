@@ -3,7 +3,7 @@ async function goToPrevious() {
     let url = await getPreviousUrl(false);
     if (url === null) {
         getPreviousButton().blur();
-        await customAlert("This is the first student.", "", getStudentSubmissionHeader);
+        await customAlert(getFirstStudentNoSubmissionAlertText(), "", getStudentSubmissionHeader);
     } else {
         followLink(url);
     }
@@ -14,7 +14,7 @@ async function goToNext() {
     let url = await getNextUrl(false);
     if (url === null) {
         getNextButton().blur();
-        await customAlert("This is the last student.", "", getStudentSubmissionHeader);
+        await customAlert(getLastStudentNoSubmissionAlertText(), "", getStudentSubmissionHeader);
     } else {
         followLink(url);
     }
@@ -25,7 +25,7 @@ async function goToPreviousSubmitted() {
     let url = await getPreviousUrl(true);
     if (url === null) {
         getPreviousSubmittedButton().blur();
-        await customAlert("There are no previous students with a submission.", "", getStudentSubmissionHeader);
+        await customAlert(getFirstStudentWithSubmissionAlertText(), "", getStudentSubmissionHeader);
     } else {
         followLink(url);
     }
@@ -36,7 +36,7 @@ async function goToNextSubmitted() {
     let url = await getNextUrl(true);
     if (url === null) {
         getNextSubmittedButton().blur();
-        await customAlert("There are no students after the current with a submission.", "", getStudentSubmissionHeader);
+        await customAlert(getLastStudentWithSubmissionAlertText(), "", getStudentSubmissionHeader);
     } else {
         followLink(url);
     }
