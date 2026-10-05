@@ -1,4 +1,4 @@
-# OPAL-BULK-MARKING 1.4
+# OPAL-BULK-MARKING 1.5
 
 Opal-bulk-marking is an add-on developed by [Marco Praderio Bova](https://marcopraderiobova.com/) with the goal of simplifying the downloading and uploading parts of the processes of marking submissions via Opal.
 
